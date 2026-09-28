@@ -2,9 +2,6 @@
 import { chips } from './data.js';
 import { pageCopy, translations } from './translations.js';
 import { readStoredJson } from './storage.js';
-import m1Image from './assets/M1_clean.webp';
-import m2Image from './assets/M2_clean.webp';
-import m3Image from './assets/M3_clean.webp';
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
 const omniStorageKey = 'jev-omni-profile-v1';
 const defaultOmniProfile = () => ({ visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {} });
@@ -27,10 +24,10 @@ const t = key => pageCopy[language]?.[key] || translations[language][key] || pag
 const localizedNodes = { '.stage-copy h1': 'stageTitle', '.stage-copy p': 'stageCopy', '.stage-legend span:nth-child(1)': 'activeModule', '.stage-legend span:nth-child(2)': 'memoryMedia', '.stage-legend span:nth-child(3)': 'computePath', '#catalogTitle': 'catalogTitle', '#catalog .section-heading p': 'catalogCopy', '#knowledgeMapTitle': 'mapTitle', '#knowledgeMapSection .knowledge-map-head p': 'mapCopy', '#compare .compare-heading p': 'compareCopy', '.compare-footnote': 'compareFootnote', '#resetButton': 'resetView', '.map-orb small': 'confidence', '.top-button': 'top', '.hud span:nth-child(2)': 'process', '.hud span:nth-child(3)': 'generations', '.hud span:nth-child(4)': 'modules', '.hud span:nth-child(5)': 'status', '.footer span:nth-child(1)': 'footerLeft', '.footer span:nth-child(2)': 'footerRight' };
 Object.entries(localizedNodes).forEach(([selector, key]) => { const node = document.querySelector(selector); if (node) { node.dataset.i18n = key; if (key === 'stageTitle' || key === 'catalogTitle' || key === 'mapTitle') node.dataset.i18nHtml = 'true'; } });
 function applyLanguage() { document.documentElement.lang = language; document.title = `Silicon Atlas / ${t('knowledgeMap')}`; document.querySelectorAll('[data-i18n]').forEach(node => { if (node.dataset.i18nHtml) node.innerHTML = t(node.dataset.i18n); else if (node.querySelector('b')) node.firstChild.textContent = `${t(node.dataset.i18n)} `; else node.textContent = t(node.dataset.i18n); }); renderKnowledgeMap(); }
-const generationImages = { M1: m1Image, M2: m2Image, M3: m3Image };
+const generationImages = Object.fromEntries(Object.entries(import.meta.glob('./assets/*_clean.png', { eager: true, import: 'default' })).map(([path, image]) => [path.split('/').at(-1).toLowerCase().replace('_clean.png', ''), image]));
 const generationChips = chips.map(chip => ({
   ...chip,
-  image: chip.name === chip.name.split(' ')[0] ? generationImages[chip.name] : null,
+  image: generationImages[chip.name.replace(' Pro', 'p').replaceAll(' ', '').toLowerCase()],
 }));
 let selected = ['M1', 'M2'];
 const $ = selector => document.querySelector(selector);

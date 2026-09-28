@@ -23,5 +23,5 @@
 - [x] Added regression coverage for Pro and Max models.
 - [x] Ran the relevant tests and production build.
 - [x] Confirmed that M1 Pro/Max were being shown the M1 base infographic.
-- [x] Use neutral, model-labeled artwork for variants and M4/M5, whose available infographics contain incorrect specs.
+- [x] Copy the supplied model-specific clean images into assets and map each chip model to its matching filename.
 - [x] Run the tests and production build.

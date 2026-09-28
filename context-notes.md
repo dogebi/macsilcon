@@ -23,4 +23,4 @@
 
 - Runtime map originally selected only the M1-M5 base chips, omitting Pro, Max, and Ultra variants. It now uses the full chips array and reuses each family image for its models.
 - Verified the family infographics themselves name the base chip (for example, `Apple M1`) and show base-tier specs. Reuse those only for base chips; show a neutral model/type/year graphic for Pro/Max/Ultra until matching source art exists.
-- Follow-up image review found the M4 and M5 infographics also contain incorrect specs. Keep verified M1-M3 family graphics; use neutral model/type/year artwork for all variants and M4/M5 base models.
+- Follow-up image review found the M4 and M5 infographics also contain incorrect specs. User supplied model-specific clean PNGs and confirmed `M1p_clean.png` is for M1 Pro. Import the supplied `_clean.png` set by filename and map each dataset model to its matching image.
