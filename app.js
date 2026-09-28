@@ -36,14 +36,23 @@ function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map(ch
 function renderCatalog() { $('#chipGrid').innerHTML = chips.map(chip => { const active = selected.includes(chip.name); return `<button class="chip-card ${active ? 'selected' : ''}" data-chip="${chip.name}" type="button" aria-pressed="${active}"><span class="card-order">${active ? `0${selected.indexOf(chip.name) + 1}` : '+'}</span>${chipMarkup(chip, true)}<div class="card-meta"><strong>${chip.name}</strong><span>${chip.type} / ${chip.year}</span></div></button>`; }).join(''); document.querySelectorAll('.chip-card').forEach(card => card.addEventListener('click', () => toggleChip(card.dataset.chip))); }
 function toggleChip(name) { if (selected.includes(name)) { if (selected.length > 1) selected = selected.filter(item => item !== name); } else selected = [selected[1], name]; renderCatalog(); renderCompare(); renderKnowledgeMap(); $('#compare').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function renderCompare() { const pair = selected.map(chipByName); $('#leftName').textContent = pair[0].name; $('#rightName').textContent = pair[1].name; $('#compareGrid').innerHTML = pair.map((chip, column) => `<article class="compare-column"><div class="compare-column-head"><span class="live-dot">●</span><div><h3>${chip.name}</h3><small>${chip.type} / ${chip.year}</small></div><b>${column === 0 ? 'TARGET A' : 'TARGET B'}</b></div><div class="compare-modules">${chip.blocks.map(([label, value, score, tone]) => `<div class="compare-module ${tone}"><div><span>${label}</span><strong>${value}</strong></div><small>${score} / REFERENCE INDEX</small><i><b style="width:${Math.min(Number(score) / 4, 100)}%"></b></i></div>`).join('')}</div></article>`).join(''); }
-const mapCategories = [['CPU CLUSTER', 'CPU'], ['GPU ARRAY', 'GPU'], ['NEURAL ENGINE', 'NEURAL'], ['UNIFIED MEMORY', 'MEMORY'], ['MEDIA ENGINE', 'MEDIA']];
+const mapCategories = [
+  ['CPU CLUSTER', 'CPU', 'General compute path and core allocation.'],
+  ['GPU ARRAY', 'GPU', 'Parallel graphics and rendering capacity.'],
+  ['NEURAL ENGINE', 'NEURAL', 'Dedicated machine-learning acceleration path.'],
+  ['UNIFIED MEMORY', 'MEMORY', 'Shared bandwidth available to every module.'],
+  ['MEDIA ENGINE', 'MEDIA', 'Hardware video encode and decode path.'],
+];
 let mapActive = 2;
 function renderKnowledgeMap() {
   const chip = chipByName(selected[0]);
   const average = Math.round(chip.metrics.reduce((sum, value) => sum + value, 0) / chip.metrics.length);
+  const activeCategory = mapCategories[mapActive];
+  const activeBlock = chip.blocks[mapActive];
   $('#mapChipName').textContent = chip.name;
   $('#mapConfidence').textContent = `${Math.min(99, 78 + Math.round(average / 20))}%`;
-  $('#mapCards').innerHTML = mapCategories.map(([label, short], index) => { const block = chip.blocks[index]; const active = index === mapActive; return `<button class="map-card map-card-${index} ${active ? 'active' : ''}" data-map-index="${index}" type="button" aria-pressed="${active}"><span class="map-card-label">${short}</span><strong>${block[1]}</strong><small>${block[0]} · ${block[2]} INDEX</small><i><b style="width:${Math.min(Number(block[2]) / 4, 100)}%"></b></i></button>`; }).join('');
+  $('#mapDetail').innerHTML = `<div class="map-detail-kicker">ACTIVE MODULE / ${chip.name}</div><h3>${activeCategory[0]}</h3><strong>${activeBlock[1]}</strong><p>${activeCategory[2]}</p><div class="map-detail-stats"><span><small>INDEX</small><b>${activeBlock[2]}</b></span><span><small>YEAR</small><b>${chip.year}</b></span><span><small>TYPE</small><b>${chip.type}</b></span></div>`;
+  $('#mapCards').innerHTML = mapCategories.map(([label, short], index) => { const block = chip.blocks[index]; const active = index === mapActive; return `<button class="map-card map-card-${index} ${active ? 'active' : ''}" data-map-index="${index}" type="button" aria-pressed="${active}"><span class="map-card-index">0${index + 1}</span><span class="map-card-label">${short}</span><strong>${block[1]}</strong><small>${block[0]} · ${block[2]} INDEX</small><i><b style="width:${Math.min(Number(block[2]) / 4, 100)}%"></b></i></button>`; }).join('');
   document.querySelectorAll('.map-card').forEach(card => card.addEventListener('click', () => { mapActive = Number(card.dataset.mapIndex); renderKnowledgeMap(); }));
   document.querySelectorAll('.map-wire').forEach((wire, index) => wire.classList.toggle('active', index === mapActive));
 }
