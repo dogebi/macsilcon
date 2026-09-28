@@ -40,6 +40,15 @@ body:before { content:""; position:fixed; inset:0; z-index:30; pointer-events:no
 .scene-image-frame:before { inset:0; border:0; border-radius:inherit; background:linear-gradient(135deg,transparent 35%,#ffffff22 50%,transparent 66%); opacity:.34; mix-blend-mode:soft-light; }
 .scene-image-frame:after { content:""; position:absolute; inset:0; z-index:2; border-radius:inherit; pointer-events:none; background:linear-gradient(180deg,#0000 68%,#02060522),radial-gradient(ellipse at center,#0000 64%,#02060526 100%); }
 .scene-image-frame img { width:100%; height:100%; max-height:none; object-fit:cover; border-radius:inherit; filter:saturate(.92) contrast(1.03); }
+.variant-art-frame { display:grid; place-items:center; background:radial-gradient(circle at 50% 42%,#183523,#06100b 68%); }
+.variant-art { position:relative; display:grid; place-items:center; gap:14px; width:min(58%,300px); aspect-ratio:1; border:1px solid #557563; border-radius:18px; background:linear-gradient(145deg,#102318,#050a07 68%); box-shadow:0 0 0 10px #20ff9109,0 20px 45px #0008; text-align:center; }
+.variant-art:before,.variant-art:after { content:""; position:absolute; border:1px solid #416352; border-radius:12px; }
+.variant-art:before { inset:12px; }
+.variant-art:after { inset:-8px; opacity:.45; }
+.variant-art span,.variant-art strong,.variant-art small,.variant-art i { position:relative; z-index:1; }
+.variant-art span,.variant-art small { color:#8aa899; font-size:9px; letter-spacing:1.2px; }
+.variant-art strong { color:#effff5; font-size:clamp(28px,5vw,54px); letter-spacing:-.05em; }
+.variant-art i { width:42%; height:2px; background:var(--green); box-shadow:0 0 12px var(--green); }
 .scene-kicker { top:14px; left:16px; padding:5px 8px; border:1px solid #ffffff55; border-radius:3px; background:#020605aa; color:#effff5; font-size:8px; letter-spacing:1px; }
 .generation-scene .scene-number { z-index:3; right:16px; bottom:10px; color:#02060555; text-shadow:0 1px #ffffff55; }
 @media(max-width:900px) { .scene-image-frame { min-height:0; } }

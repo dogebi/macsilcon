@@ -5,8 +5,6 @@ import { readStoredJson } from './storage.js';
 import m1Image from './assets/M1_clean.webp';
 import m2Image from './assets/M2_clean.webp';
 import m3Image from './assets/M3_clean.webp';
-import m4Image from './assets/M4_clean.webp';
-import m5Image from './assets/M5_clean.webp';
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
 const omniStorageKey = 'jev-omni-profile-v1';
 const defaultOmniProfile = () => ({ visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {} });
@@ -29,15 +27,18 @@ const t = key => pageCopy[language]?.[key] || translations[language][key] || pag
 const localizedNodes = { '.stage-copy h1': 'stageTitle', '.stage-copy p': 'stageCopy', '.stage-legend span:nth-child(1)': 'activeModule', '.stage-legend span:nth-child(2)': 'memoryMedia', '.stage-legend span:nth-child(3)': 'computePath', '#catalogTitle': 'catalogTitle', '#catalog .section-heading p': 'catalogCopy', '#knowledgeMapTitle': 'mapTitle', '#knowledgeMapSection .knowledge-map-head p': 'mapCopy', '#compare .compare-heading p': 'compareCopy', '.compare-footnote': 'compareFootnote', '#resetButton': 'resetView', '.map-orb small': 'confidence', '.top-button': 'top', '.hud span:nth-child(2)': 'process', '.hud span:nth-child(3)': 'generations', '.hud span:nth-child(4)': 'modules', '.hud span:nth-child(5)': 'status', '.footer span:nth-child(1)': 'footerLeft', '.footer span:nth-child(2)': 'footerRight' };
 Object.entries(localizedNodes).forEach(([selector, key]) => { const node = document.querySelector(selector); if (node) { node.dataset.i18n = key; if (key === 'stageTitle' || key === 'catalogTitle' || key === 'mapTitle') node.dataset.i18nHtml = 'true'; } });
 function applyLanguage() { document.documentElement.lang = language; document.title = `Silicon Atlas / ${t('knowledgeMap')}`; document.querySelectorAll('[data-i18n]').forEach(node => { if (node.dataset.i18nHtml) node.innerHTML = t(node.dataset.i18n); else if (node.querySelector('b')) node.firstChild.textContent = `${t(node.dataset.i18n)} `; else node.textContent = t(node.dataset.i18n); }); renderKnowledgeMap(); }
-const generationImages = { M1: m1Image, M2: m2Image, M3: m3Image, M4: m4Image, M5: m5Image };
-const generationChips = chips.map(chip => ({ ...chip, image: generationImages[chip.name.split(' ')[0]] }));
+const generationImages = { M1: m1Image, M2: m2Image, M3: m3Image };
+const generationChips = chips.map(chip => ({
+  ...chip,
+  image: chip.name === chip.name.split(' ')[0] ? generationImages[chip.name] : null,
+}));
 let selected = ['M1', 'M2'];
 const $ = selector => document.querySelector(selector);
 const chipByName = name => chips.find(chip => chip.name === name);
 
 function moduleMarkup([label, value, score, tone], compact = false) { return `<div class="module ${tone} ${compact ? 'compact' : ''}"><span class="module-port"></span><div class="module-label">${label}</div><strong>${value}</strong><small>${score}% ILLUSTRATIVE INDEX</small><i style="--fill:${Math.min(Number(score) / 4, 100)}%"></i></div>`; }
 function chipMarkup(chip, compact = false) { return `<div class="chip-shell ${compact ? 'compact-shell' : ''}"><div class="chip-shell-head"><b>${chip.name}</b><span>${chip.type}</span><em>${chip.year}</em></div><div class="chip-bus"></div><div class="module-grid">${chip.blocks.map(block => moduleMarkup(block, compact)).join('')}</div><div class="chip-shell-foot"><span>UNIFIED ARCHITECTURE</span><span>${chip.blocks.length} MODULES</span></div></div>`; }
-function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map(chip => `<article class="generation-scene"><div class="scene-image-frame"><img src="${chip.image}" alt="${chip.name} 원본 칩 이미지" decoding="async"></div>${chipMarkup(chip)}</article>`).join(''); }
+function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map(chip => `<article class="generation-scene">${chip.image ? `<div class="scene-image-frame"><img src="${chip.image}" alt="${chip.name} 세대 인포그래픽" decoding="async"></div>` : `<div class="scene-image-frame variant-art-frame"><div class="variant-art"><span>APPLE SILICON / MODEL</span><strong>${chip.name}</strong><small>${chip.type} / ${chip.year}</small><i></i></div></div>`}${chipMarkup(chip)}</article>`).join(''); }
 function renderCatalog() {
   const families = [...new Set(chips.map(chip => chip.name.split(' ')[0]))];
   $('#chipGrid').innerHTML = families.map(family => {

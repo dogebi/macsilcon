@@ -22,3 +22,5 @@
 - 5단계: 이미지 import에서 `?inline`을 제거해 Vite가 WebP를 별도 asset으로 배포하도록 했다. 초기 JS 번들이 약 586KB에서 21KB로 감소했다.
 
 - Runtime map originally selected only the M1-M5 base chips, omitting Pro, Max, and Ultra variants. It now uses the full chips array and reuses each family image for its models.
+- Verified the family infographics themselves name the base chip (for example, `Apple M1`) and show base-tier specs. Reuse those only for base chips; show a neutral model/type/year graphic for Pro/Max/Ultra until matching source art exists.
+- Follow-up image review found the M4 and M5 infographics also contain incorrect specs. Keep verified M1-M3 family graphics; use neutral model/type/year artwork for all variants and M4/M5 base models.
