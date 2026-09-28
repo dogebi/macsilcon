@@ -1,61 +1,49 @@
-<!-- Apple Silicon 세대별 이미지를 스크롤과 비교 UI로 보여주는 독립 실행형 페이지 -->
+<!-- Apple Silicon 칩 구조를 CRT 대시보드 박스로 보여주는 진입 페이지 -->
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="M1부터 M5까지 Apple Silicon Mac 칩을 이미지 중심으로 비교합니다.">
-  <title>Silicon Atlas — Mac chip comparison</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="M1부터 M5까지 Apple Silicon 칩의 구성 요소와 비교 지표를 보여주는 대시보드입니다.">
+  <title>Silicon Atlas / Chip Runtime Dashboard</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="wordmark" href="#top">SILICON <span>ATLAS</span></a>
-    <nav aria-label="주요 메뉴">
-      <a href="#journey">세대 흐름</a>
-      <a href="#compare">비교하기</a>
-    </nav>
-    <button class="ghost-button" id="resetButton" type="button">선택 초기화</button>
-  </header>
+  <div class="crt-frame">
+    <header class="hud">
+      <a class="hud-brand" href="#top"><span class="live-dot">●</span> SILICON ATLAS</a>
+      <span>PROCESS <b>chip_runtime</b></span>
+      <span>GENERATIONS <b>05</b></span>
+      <span>MODULES <b>05 / CHIP</b></span>
+      <span>STATUS <b class="ok">ONLINE</b></span>
+      <button id="resetButton" type="button">RESET VIEW</button>
+    </header>
 
-  <main id="top">
-    <section class="hero section-pad">
-      <div class="eyebrow">THE APPLE SILICON ERA · 2020—</div>
-      <h1>한 장씩 넘겨보는<br><em>Mac의 진화.</em></h1>
-      <p class="hero-copy">칩의 이름보다 중요한 건, 내가 하는 일에 맞는 흐름입니다.<br>스크롤하며 세대를 훑고, 두 칩을 골라 차이를 확인하세요.</p>
-      <a class="scroll-cue" href="#journey"><span class="cue-line"></span>스크롤해서 탐험</a>
-    </section>
+    <main id="top">
+      <section class="dashboard-stage" aria-label="Apple Silicon 세대 구조 그래프">
+        <div class="stage-heading"><span>APPLE SILICON / GENERATION GRAPH</span><span>SCROLL TO TRACE ●</span></div>
+        <div class="stage-copy"><span class="eyebrow">01 / CORE EVOLUTION</span><h1>Mac chip<br><em>runtime map.</em></h1><p>이미지를 해석 가능한 모듈로 분해했습니다.<br>스크롤하면서 세대별 구조와 성능 흐름을 확인하세요.</p><div class="stage-readout"><strong id="generationLabel">M1</strong><span id="generationCount">01 / 05</span><i></i></div></div>
+        <div class="generation-stage" id="journeyTrack"></div>
+        <div class="stage-rail"><span id="journeyProgress"></span></div>
+        <div class="stage-legend"><span><i class="legend-green"></i> ACTIVE MODULE</span><span><i class="legend-blue"></i> MEMORY / MEDIA</span><span><i class="legend-amber"></i> COMPUTE PATH</span></div>
+      </section>
 
-    <section class="journey" id="journey" aria-labelledby="journeyTitle">
-      <div class="journey-copy section-pad">
-        <div class="eyebrow">01 / THE JOURNEY</div>
-        <h2 id="journeyTitle">작은 시작,<br><em>더 넓어진 스펙트럼.</em></h2>
-        <p>화면을 내릴수록 세대가 바뀝니다. 제품명 대신 이미지와 숫자의 리듬으로 변화를 느껴보세요.</p>
-        <div class="generation-readout"><span id="generationLabel">M1</span><span id="generationCount">01 / 05</span></div>
-      </div>
-      <div class="journey-viewport" id="journeyViewport" aria-label="M1부터 M5까지 세대 이미지">
-        <div class="journey-track" id="journeyTrack"></div>
-        <div class="journey-progress"><span id="journeyProgress"></span></div>
-      </div>
-    </section>
+      <section class="catalog section-pad" id="catalog" aria-labelledby="catalogTitle">
+        <div class="section-bar"><span>02 / CHIP REGISTRY</span><span>SELECT TWO TARGETS TO INSPECT</span></div>
+        <div class="section-heading"><h2 id="catalogTitle">The complete<br><em>silicon lineup.</em></h2><p>각 카드는 하나의 칩을 다섯 개의 핵심 모듈로 분해한 구조도입니다. 카드를 선택하면 비교 패널이 갱신됩니다.</p></div>
+        <div class="chip-grid" id="chipGrid"></div>
+      </section>
 
-    <section class="catalog section-pad" aria-labelledby="catalogTitle">
-      <div class="section-heading">
-        <div><div class="eyebrow">02 / THE LINEUP</div><h2 id="catalogTitle">모든 계열을<br><em>한눈에.</em></h2></div>
-        <p>카드를 눌러 비교 후보를 고르세요.<br>선택 순서대로 왼쪽과 오른쪽에 놓입니다.</p>
-      </div>
-      <div class="chip-grid" id="chipGrid"></div>
-    </section>
+      <section class="compare section-pad" id="compare" aria-labelledby="compareTitle">
+        <div class="section-bar"><span>03 / COMPARISON CONSOLE</span><span>REFERENCE INDEX / NOT LAB BENCHMARK</span></div>
+        <div class="compare-heading"><h2 id="compareTitle"><span id="leftName">M1</span> <i>VS</i> <span id="rightName">M2</span></h2><p>선택한 두 칩의 내부 모듈과 기준 지표를 나란히 비교합니다.</p></div>
+        <div class="compare-grid" id="compareGrid"></div>
+        <div class="compare-footnote">* 지표는 화면에서 세대 차이를 비교하기 위한 기준값이며 동일 조건의 실험실 벤치마크가 아닙니다.</div>
+      </section>
+    </main>
 
-    <section class="compare section-pad" id="compare" aria-labelledby="compareTitle">
-      <div class="eyebrow">03 / THE FACE-OFF</div>
-      <div class="compare-heading"><h2 id="compareTitle"><span id="leftName">M1</span> <i>vs</i> <span id="rightName">M2</span></h2><p>두 칩을 선택하면 지표가 즉시 다시 그려집니다.</p></div>
-      <div class="compare-grid" id="compareGrid"></div>
-      <div class="compare-footnote">* 수치는 제품군 간 시각적 비교를 위한 기준 지표입니다. 동일한 실험실 벤치마크를 의미하지 않습니다.</div>
-    </section>
-  </main>
-
-  <footer class="footer section-pad"><span>SILICON ATLAS</span><span>Built for curious workflows.</span></footer>
-  <script type="module" src="/app.js"></script>
+    <footer class="footer"><span>SILICON ATLAS / CRT CONSOLE</span><span>WEBMCP READY · REDUCED MOTION READY</span></footer>
+  </div>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
