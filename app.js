@@ -31,7 +31,9 @@ const translations = {
   ja: { generationGraph: 'Apple Silicon / 世代グラフ', scrollToTrace: 'スクロールして追跡 ●', chipRegistry: 'チップレジストリ', selectTwo: '比較する2つのモデルを選択', knowledgeMap: 'ナレッジマップ', clickModel: 'モデルをクリックして仕様を確認', comparisonConsole: '比較コンソール', referenceIndex: '参照指数 / ラボベンチマークではありません', activeSilicon: '選択中のシリコン', index: '指数', year: '年', type: 'タイプ', cpu: 'CPU クラスター', gpu: 'GPU アレイ', neural: 'ニューラルエンジン', memory: '統合メモリ', media: 'メディアエンジン' },
   zh: { generationGraph: 'Apple Silicon / 世代图', scrollToTrace: '滚动追踪 ●', chipRegistry: '芯片目录', selectTwo: '选择两个目标进行比较', knowledgeMap: '知识地图', clickModel: '点击型号查看详细规格', comparisonConsole: '比较控制台', referenceIndex: '参考指数 / 非实验室基准', activeSilicon: '当前芯片', index: '指数', year: '年份', type: '类型', cpu: 'CPU 集群', gpu: 'GPU 阵列', neural: '神经引擎', memory: '统一内存', media: '媒体引擎' },
 };
-let language = localStorage.getItem('silicon-atlas-language') || 'en';
+const supportedLanguages = Object.keys(translations);
+const browserLanguage = [...(navigator.languages || []), navigator.language].find(value => supportedLanguages.includes(value?.split('-')[0]));
+let language = localStorage.getItem('silicon-atlas-language') || browserLanguage?.split('-')[0] || 'en';
 const t = key => translations[language][key] || translations.en[key] || key;
 function applyLanguage() { document.documentElement.lang = language; document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.dataset.i18n); }); renderKnowledgeMap(); }
 const generationChips = [['M1', m1Image], ['M2', m2Image], ['M3', m3Image], ['M4', m4Image], ['M5', m5Image]].map(([name, image]) => ({ ...chips.find(chip => chip.name === name), image }));
