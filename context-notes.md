@@ -20,3 +20,5 @@
 - 3단계: `data.js`는 칩 배열을, `translations.js`는 번역과 본문 문구를 소유하며 `app.js`는 이를 import한다.
 - 4단계: 칩 점수는 실제 벤치마크가 아닌 `ILLUSTRATIVE INDEX`로 UI에 표시하며, 비교 섹션의 비실험실 기준 안내를 유지한다.
 - 5단계: 이미지 import에서 `?inline`을 제거해 Vite가 WebP를 별도 asset으로 배포하도록 했다. 초기 JS 번들이 약 586KB에서 21KB로 감소했다.
+
+- Runtime map originally selected only the M1-M5 base chips, omitting Pro, Max, and Ultra variants. It now uses the full chips array and reuses each family image for its models.

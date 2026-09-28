@@ -17,3 +17,8 @@
 - [x] 4. 수치 데이터가 illustrative index임을 명시하고 출처 문구 추가.
 - [x] 5. 칩 이미지를 일반 asset 로딩으로 변경하고 빌드 검증.
 - [x] 전체 빌드 및 최소 회귀 테스트 통과.
+
+- [x] Found that the runtime map listed only base chips.
+- [x] Connected the runtime map scenes to the complete chip dataset.
+- [x] Added regression coverage for Pro and Max models.
+- [x] Ran the relevant tests and production build.
