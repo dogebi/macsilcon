@@ -31,7 +31,35 @@ function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map((c
 function renderCatalog() { $('#chipGrid').innerHTML = chips.map(chip => { const active = selected.includes(chip.name); return `<button class="chip-card ${active ? 'selected' : ''}" data-chip="${chip.name}" type="button" aria-pressed="${active}"><span class="card-order">${active ? `0${selected.indexOf(chip.name) + 1}` : '+'}</span>${chipMarkup(chip, true)}<div class="card-meta"><strong>${chip.name}</strong><span>${chip.type} / ${chip.year}</span></div></button>`; }).join(''); document.querySelectorAll('.chip-card').forEach(card => card.addEventListener('click', () => toggleChip(card.dataset.chip))); }
 function toggleChip(name) { if (selected.includes(name)) { if (selected.length > 1) selected = selected.filter(item => item !== name); } else selected = [selected[1], name]; renderCatalog(); renderCompare(); $('#compare').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function renderCompare() { const pair = selected.map(chipByName); $('#leftName').textContent = pair[0].name; $('#rightName').textContent = pair[1].name; $('#compareGrid').innerHTML = pair.map((chip, column) => `<article class="compare-column"><div class="compare-column-head"><span class="live-dot">●</span><div><h3>${chip.name}</h3><small>${chip.type} / ${chip.year}</small></div><b>${column === 0 ? 'TARGET A' : 'TARGET B'}</b></div><div class="compare-modules">${chip.blocks.map(([label, value, score, tone]) => `<div class="compare-module ${tone}"><div><span>${label}</span><strong>${value}</strong></div><small>${score} / REFERENCE INDEX</small><i><b style="width:${Math.min(Number(score) / 4, 100)}%"></b></i></div>`).join('')}</div></article>`).join(''); }
-function updateJourney() { const section = $('.dashboard-stage'); const range = section.offsetHeight - window.innerHeight; const progress = Math.max(0, Math.min(1, (window.scrollY - section.offsetTop) / range)); const position = progress * (generationChips.length - 1); document.querySelectorAll('.generation-scene').forEach((scene, index) => { const distance = index - position; scene.style.opacity = String(Math.max(0, 1 - Math.abs(distance) * 1.65)); scene.style.transform = `translate3d(${distance * 38}vw, ${Math.abs(distance) * 10}vh, 0) scale(${1 - Math.min(Math.abs(distance) * .14, .25)}) rotate(${distance * 2}deg)`; }); const active = Math.round(position); $('#generationLabel').textContent = generationChips[active].name; $('#generationCount').textContent = `0${active + 1} / 05`; $('#journeyProgress').style.transform = `scaleY(${progress})`; }
+let targetProgress = 0;
+let smoothProgress = 0;
+let journeyFrame = 0;
+
+function readJourneyProgress() { const section = $('.dashboard-stage'); const range = section.offsetHeight - window.innerHeight; return Math.max(0, Math.min(1, (window.scrollY - section.offsetTop) / range)); }
+
+function paintJourney(progress) {
+  const position = progress * (generationChips.length - 1);
+  document.querySelectorAll('.generation-scene').forEach((scene, index) => {
+    const distance = index - position;
+    const depth = Math.min(Math.abs(distance), 1.5);
+    scene.style.zIndex = String(100 - Math.round(depth * 10));
+    scene.style.opacity = String(Math.max(0, 1 - depth * 1.08));
+    scene.style.transform = `translate3d(${distance * 12}vw, ${distance * 3.5}vh, ${-depth * 80}px) scale(${1 - Math.min(depth * .08, .12)}) rotateY(${distance * 4}deg)`;
+  });
+  const active = Math.round(position);
+  $('#generationLabel').textContent = generationChips[active].name;
+  $('#generationCount').textContent = `0${active + 1} / 05`;
+  $('#journeyProgress').style.transform = `scaleY(${progress})`;
+}
+
+function animateJourney() {
+  smoothProgress += (targetProgress - smoothProgress) * 0.13;
+  paintJourney(smoothProgress);
+  if (Math.abs(targetProgress - smoothProgress) > 0.0005) journeyFrame = requestAnimationFrame(animateJourney);
+  else journeyFrame = 0;
+}
+
+function requestJourneyPaint() { targetProgress = readJourneyProgress(); if (!journeyFrame) journeyFrame = requestAnimationFrame(animateJourney); }
 function registerWebMCP() { if (!document.modelContext?.registerTool) return; const controller = new AbortController(); window.macCompareWebMCP = { controller }; const register = async () => { await document.modelContext.registerTool({ name: 'list_mac_chips', description: 'List the Mac chip modules available in the Silicon Atlas dashboard.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => ({ chips: chips.map(chip => ({ name: chip.name, type: chip.type, year: chip.year, modules: chip.blocks.map(block => block[0]) })) }) }, { signal: controller.signal }); await document.modelContext.registerTool({ name: 'compare_mac_chips', description: 'Select two chips and return their decomposed module comparison.', inputSchema: { type: 'object', properties: { left: { type: 'string' }, right: { type: 'string' } }, required: ['left', 'right'], additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async input => { const left = chipByName(input.left); const right = chipByName(input.right); if (!left || !right || left.name === right.name) return { ok: false, error: 'Choose two different chip names from list_mac_chips.' }; selected = [left.name, right.name]; renderCatalog(); renderCompare(); return { ok: true, selected, metrics: metricNames.map((metric, index) => ({ metric, left: left.metrics[index], right: right.metrics[index] })) }; } }, { signal: controller.signal }); }; register().catch(error => { window.macCompareWebMCP.error = String(error?.message || error); }); }
 $('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; renderCatalog(); renderCompare(); });
-renderJourney(); renderCatalog(); renderCompare(); registerWebMCP(); window.addEventListener('scroll', updateJourney, { passive: true }); window.addEventListener('resize', updateJourney); updateJourney();
+renderJourney(); renderCatalog(); renderCompare(); registerWebMCP(); window.addEventListener('scroll', requestJourneyPaint, { passive: true }); window.addEventListener('resize', requestJourneyPaint); targetProgress = readJourneyProgress(); smoothProgress = targetProgress; paintJourney(smoothProgress);
