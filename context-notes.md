@@ -10,3 +10,4 @@
 - 2026-09-28: EN/日本語/中文/한국어 선택기를 추가하고 핵심 정적 UI와 Knowledge Map 상세 라벨을 localStorage 기반으로 전환했다.
 - 2026-09-28: 저장된 사용자 선택이 없을 때 `navigator.languages`와 `navigator.language`의 브라우저 설정을 감지해 초기 언어를 결정한다.
 - 2026-09-28: 남아 있던 본문 `<p>`와 정적 버튼·푸터·범례 문구에도 번역 키를 연결하고, HTML이 포함된 제목은 `innerHTML` 방식으로 언어별 교체한다.
+- 2026-09-28: JEV-OMNI는 referrer/UTM, 재방문, 섹션·카탈로그·맵·비교·언어 클릭, 체류 시간을 브라우저 localStorage에만 기록하고 explorer/catalog/analyst/returning 모드별 UI 강조를 적용한다.
