@@ -22,25 +22,26 @@
       <span>GENERATIONS <b>05</b></span>
       <span>MODULES <b>05 / CHIP</b></span>
       <span>STATUS <b class="ok">ONLINE</b></span>
+      <label class="language-picker"><span class="sr-only">Language</span><select id="languageSelect" aria-label="Language"><option value="en">EN</option><option value="ja">日本語</option><option value="zh">中文</option><option value="ko">한국어</option></select></label>
       <button id="resetButton" type="button">RESET VIEW</button>
     </header>
 
     <main id="top">
       <section class="dashboard-stage" aria-label="Apple Silicon 세대 구조 그래프">
-        <div class="stage-heading"><span>APPLE SILICON / GENERATION GRAPH</span><span>SCROLL TO TRACE ●</span></div>
+        <div class="stage-heading"><span data-i18n="generationGraph">APPLE SILICON / GENERATION GRAPH</span><span data-i18n="scrollToTrace">SCROLL TO TRACE ●</span></div>
         <div class="stage-copy"><h1>Mac chip<br><em>runtime map.</em></h1><p>칩을 CPU, GPU, Neural, Memory, Media 모듈로 나눠 세대별 차이를 보여줍니다.</p><div class="stage-readout"><strong id="generationLabel">M1</strong><span id="generationCount">01 / 05</span><i></i></div></div>
         <div class="generation-stage" id="journeyTrack"></div>
         <div class="stage-legend"><span><i class="legend-green"></i> ACTIVE MODULE</span><span><i class="legend-blue"></i> MEMORY / MEDIA</span><span><i class="legend-amber"></i> COMPUTE PATH</span></div>
       </section>
 
       <section class="catalog section-pad" id="catalog" aria-labelledby="catalogTitle">
-        <div class="section-bar"><span>CHIP REGISTRY</span><span>SELECT TWO TARGETS TO INSPECT</span></div>
+        <div class="section-bar"><span data-i18n="chipRegistry">CHIP REGISTRY</span><span data-i18n="selectTwo">SELECT TWO TARGETS TO INSPECT</span></div>
         <div class="section-heading"><h2 id="catalogTitle">The complete<br><em>silicon lineup.</em></h2><p>각 카드는 하나의 칩을 다섯 개의 핵심 모듈로 분해한 구조도입니다. 카드를 선택하면 비교 패널이 갱신됩니다.</p></div>
         <div class="chip-grid" id="chipGrid"></div>
       </section>
 
       <section class="knowledge-map section-pad" id="knowledgeMapSection" aria-labelledby="knowledgeMapTitle">
-        <div class="section-bar"><span>KNOWLEDGE MAP</span><span>CLICK A MODULE TO TRACE ITS PATH</span></div>
+        <div class="section-bar"><span data-i18n="knowledgeMap">KNOWLEDGE MAP</span><span data-i18n="clickModel">CLICK A MODEL TO INSPECT ITS SPECS</span></div>
         <div class="knowledge-map-head"><h2 id="knowledgeMapTitle">One chip,<br><em>five paths.</em></h2><p>선택한 칩의 주요 모듈을 중앙 orb에서 각 결과 카드로 연결합니다. 카드를 누르면 해당 경로가 활성화됩니다.</p></div>
         <div class="knowledge-map-widget" id="knowledgeMapWidget">
           <svg class="map-wires" viewBox="0 0 1200 680" aria-hidden="true"><g id="mapWireGroup"></g></svg>
@@ -51,7 +52,7 @@
       </section>
 
       <section class="compare section-pad" id="compare" aria-labelledby="compareTitle">
-        <div class="section-bar"><span>COMPARISON CONSOLE</span><span>REFERENCE INDEX / NOT LAB BENCHMARK</span></div>
+        <div class="section-bar"><span data-i18n="comparisonConsole">COMPARISON CONSOLE</span><span data-i18n="referenceIndex">REFERENCE INDEX / NOT LAB BENCHMARK</span></div>
         <div class="compare-heading"><h2 id="compareTitle"><span id="leftName">M1</span> <i>VS</i> <span id="rightName">M2</span></h2><p>선택한 두 칩의 내부 모듈과 기준 지표를 나란히 비교합니다.</p></div>
         <div class="compare-grid" id="compareGrid"></div>
         <div class="compare-footnote">* 지표는 화면에서 세대 차이를 비교하기 위한 기준값이며 동일 조건의 실험실 벤치마크가 아닙니다.</div>
