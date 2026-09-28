@@ -1,4 +1,9 @@
 // Apple Silicon 칩을 모듈 박스와 비교 패널로 렌더링하는 브라우저 코드
+import m1Image from './assets/M1_clean.webp?inline';
+import m2Image from './assets/M2_clean.webp?inline';
+import m3Image from './assets/M3_clean.webp?inline';
+import m4Image from './assets/M4_clean.webp?inline';
+import m5Image from './assets/M5_clean.webp?inline';
 const chips = [
   { name: 'M1', type: 'BASELINE', year: 2020, metrics: [100, 100, 100, 100, 100], blocks: [['CPU CLUSTER', '8 CORES', '100', 'green'], ['GPU ARRAY', '7 / 8 CORE', '100', 'amber'], ['NEURAL ENGINE', '16 CORE', '100', 'green'], ['UNIFIED MEMORY', '68 GB/s', '100', 'blue'], ['MEDIA ENGINE', 'H.264 / HEVC', '100', 'blue']] },
   { name: 'M1 Pro', type: 'PRO WORKFLOW', year: 2021, metrics: [125, 135, 140, 130, 120], blocks: [['CPU CLUSTER', '10 CORES', '125', 'green'], ['GPU ARRAY', '14 / 16 CORE', '140', 'amber'], ['NEURAL ENGINE', '16 CORE', '120', 'green'], ['UNIFIED MEMORY', '200 GB/s', '130', 'blue'], ['MEDIA ENGINE', 'PRORES PATH', '130', 'blue']] },
@@ -20,46 +25,17 @@ const chips = [
   { name: 'M5 Max', type: 'CREATOR PATH', year: 2025, metrics: [225, 320, 365, 265, 330], blocks: [['CPU CLUSTER', '16 CORE', '225', 'green'], ['GPU ARRAY', '40 CORE', '365', 'amber'], ['NEURAL ENGINE', '16 CORE', '330', 'green'], ['UNIFIED MEMORY', '614 GB/s', '265', 'blue'], ['MEDIA ENGINE', 'DUAL PRORES', '320', 'blue']] },
 ];
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
-const generationChips = ['M1', 'M2', 'M3', 'M4', 'M5'].map(name => chips.find(chip => chip.name === name));
+const generationChips = [['M1', m1Image], ['M2', m2Image], ['M3', m3Image], ['M4', m4Image], ['M5', m5Image]].map(([name, image]) => ({ ...chips.find(chip => chip.name === name), image }));
 let selected = ['M1', 'M2'];
 const $ = selector => document.querySelector(selector);
 const chipByName = name => chips.find(chip => chip.name === name);
 
 function moduleMarkup([label, value, score, tone], compact = false) { return `<div class="module ${tone} ${compact ? 'compact' : ''}"><span class="module-port"></span><div class="module-label">${label}</div><strong>${value}</strong><small>${score}% INDEX</small><i style="--fill:${Math.min(Number(score) / 4, 100)}%"></i></div>`; }
 function chipMarkup(chip, compact = false) { return `<div class="chip-shell ${compact ? 'compact-shell' : ''}"><div class="chip-shell-head"><b>${chip.name}</b><span>${chip.type}</span><em>${chip.year}</em></div><div class="chip-bus"></div><div class="module-grid">${chip.blocks.map(block => moduleMarkup(block, compact)).join('')}</div><div class="chip-shell-foot"><span>UNIFIED ARCHITECTURE</span><span>${chip.blocks.length} MODULES</span></div></div>`; }
-function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map((chip, index) => `<article class="generation-scene" data-index="${index}">${chipMarkup(chip)}<span class="scene-number">0${index + 1}</span></article>`).join(''); }
+function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map((chip, index) => `<article class="generation-scene"><div class="scene-image-frame"><span class="scene-kicker">ORIGINAL / ${chip.name}</span><img src="${chip.image}" alt="${chip.name} 원본 칩 이미지" decoding="async"><span class="scene-number">0${index + 1}</span></div>${chipMarkup(chip)}</article>`).join(''); }
 function renderCatalog() { $('#chipGrid').innerHTML = chips.map(chip => { const active = selected.includes(chip.name); return `<button class="chip-card ${active ? 'selected' : ''}" data-chip="${chip.name}" type="button" aria-pressed="${active}"><span class="card-order">${active ? `0${selected.indexOf(chip.name) + 1}` : '+'}</span>${chipMarkup(chip, true)}<div class="card-meta"><strong>${chip.name}</strong><span>${chip.type} / ${chip.year}</span></div></button>`; }).join(''); document.querySelectorAll('.chip-card').forEach(card => card.addEventListener('click', () => toggleChip(card.dataset.chip))); }
 function toggleChip(name) { if (selected.includes(name)) { if (selected.length > 1) selected = selected.filter(item => item !== name); } else selected = [selected[1], name]; renderCatalog(); renderCompare(); $('#compare').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function renderCompare() { const pair = selected.map(chipByName); $('#leftName').textContent = pair[0].name; $('#rightName').textContent = pair[1].name; $('#compareGrid').innerHTML = pair.map((chip, column) => `<article class="compare-column"><div class="compare-column-head"><span class="live-dot">●</span><div><h3>${chip.name}</h3><small>${chip.type} / ${chip.year}</small></div><b>${column === 0 ? 'TARGET A' : 'TARGET B'}</b></div><div class="compare-modules">${chip.blocks.map(([label, value, score, tone]) => `<div class="compare-module ${tone}"><div><span>${label}</span><strong>${value}</strong></div><small>${score} / REFERENCE INDEX</small><i><b style="width:${Math.min(Number(score) / 4, 100)}%"></b></i></div>`).join('')}</div></article>`).join(''); }
-let targetProgress = 0;
-let smoothProgress = 0;
-let journeyFrame = 0;
-
-function readJourneyProgress() { const section = $('.dashboard-stage'); const range = section.offsetHeight - window.innerHeight; return Math.max(0, Math.min(1, (window.scrollY - section.offsetTop) / range)); }
-
-function paintJourney(progress) {
-  const position = progress * (generationChips.length - 1);
-  document.querySelectorAll('.generation-scene').forEach((scene, index) => {
-    const distance = index - position;
-    const depth = Math.min(Math.abs(distance), 1.5);
-    scene.style.zIndex = String(100 - Math.round(depth * 10));
-    scene.style.opacity = String(Math.max(0, 1 - depth * 1.08));
-    scene.style.transform = `translate3d(${distance * 12}vw, ${distance * 3.5}vh, ${-depth * 80}px) scale(${1 - Math.min(depth * .08, .12)}) rotateY(${distance * 4}deg)`;
-  });
-  const active = Math.round(position);
-  $('#generationLabel').textContent = generationChips[active].name;
-  $('#generationCount').textContent = `0${active + 1} / 05`;
-  $('#journeyProgress').style.transform = `scaleY(${progress})`;
-}
-
-function animateJourney() {
-  smoothProgress += (targetProgress - smoothProgress) * 0.13;
-  paintJourney(smoothProgress);
-  if (Math.abs(targetProgress - smoothProgress) > 0.0005) journeyFrame = requestAnimationFrame(animateJourney);
-  else journeyFrame = 0;
-}
-
-function requestJourneyPaint() { targetProgress = readJourneyProgress(); if (!journeyFrame) journeyFrame = requestAnimationFrame(animateJourney); }
 function registerWebMCP() { if (!document.modelContext?.registerTool) return; const controller = new AbortController(); window.macCompareWebMCP = { controller }; const register = async () => { await document.modelContext.registerTool({ name: 'list_mac_chips', description: 'List the Mac chip modules available in the Silicon Atlas dashboard.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => ({ chips: chips.map(chip => ({ name: chip.name, type: chip.type, year: chip.year, modules: chip.blocks.map(block => block[0]) })) }) }, { signal: controller.signal }); await document.modelContext.registerTool({ name: 'compare_mac_chips', description: 'Select two chips and return their decomposed module comparison.', inputSchema: { type: 'object', properties: { left: { type: 'string' }, right: { type: 'string' } }, required: ['left', 'right'], additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async input => { const left = chipByName(input.left); const right = chipByName(input.right); if (!left || !right || left.name === right.name) return { ok: false, error: 'Choose two different chip names from list_mac_chips.' }; selected = [left.name, right.name]; renderCatalog(); renderCompare(); return { ok: true, selected, metrics: metricNames.map((metric, index) => ({ metric, left: left.metrics[index], right: right.metrics[index] })) }; } }, { signal: controller.signal }); }; register().catch(error => { window.macCompareWebMCP.error = String(error?.message || error); }); }
 $('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; renderCatalog(); renderCompare(); });
-renderJourney(); renderCatalog(); renderCompare(); registerWebMCP(); window.addEventListener('scroll', requestJourneyPaint, { passive: true }); window.addEventListener('resize', requestJourneyPaint); targetProgress = readJourneyProgress(); smoothProgress = targetProgress; paintJourney(smoothProgress);
+renderJourney(); renderCatalog(); renderCompare(); registerWebMCP();
