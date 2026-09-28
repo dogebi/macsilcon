@@ -57,3 +57,11 @@ body:before { content:""; position:fixed; inset:0; z-index:30; pointer-events:no
   .stage-copy { padding-top:28px; }
   .stage-copy h1 { font-size:44px; }
 }
+
+/* Deslopped pass: keep the CRT structure, remove decorative AI-default emphasis. */
+.crt-frame { background:#030907; box-shadow:0 0 0 1px #09120d,0 0 28px #0b2014 inset; }
+.dashboard-stage:before { background:none; }
+.live-dot { text-shadow:none; }
+.stage-copy .eyebrow { display:none; }
+.scene-kicker,.scene-number { display:none; }
+.scene-image-frame:before { background:none; border:0; }
