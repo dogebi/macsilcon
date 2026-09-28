@@ -11,3 +11,12 @@
 - 2026-09-28: 저장된 사용자 선택이 없을 때 `navigator.languages`와 `navigator.language`의 브라우저 설정을 감지해 초기 언어를 결정한다.
 - 2026-09-28: 남아 있던 본문 `<p>`와 정적 버튼·푸터·범례 문구에도 번역 키를 연결하고, HTML이 포함된 제목은 `innerHTML` 방식으로 언어별 교체한다.
 - 2026-09-28: JEV-OMNI는 referrer/UTM, 재방문, 섹션·카탈로그·맵·비교·언어 클릭, 체류 시간을 브라우저 localStorage에만 기록하고 explorer/catalog/analyst/returning 모드별 UI 강조를 적용한다.
+# 2026-09-28 유지보수 결정
+
+- 작업 순서는 인코딩 복구, localStorage 복구, 데이터·번역 모듈 분리, illustrative index 명시, 이미지 asset 로딩 전환으로 고정한다.
+- 기존 UI 동작과 배포 base 경로는 유지하고, 각 단계마다 빌드 또는 최소 회귀 검증을 실행한다.
+- 1단계: 파일 자체는 UTF-8로 정상이며 PowerShell 표시만 깨져 있었다. 중복된 `Object.assign(pageCopy.*)` Unicode escape 보정 블록만 제거했다.
+- 2단계: `storage.js`의 `readStoredJson`이 JSON 파싱 및 storage 접근 예외를 기본값으로 복구한다.
+- 3단계: `data.js`는 칩 배열을, `translations.js`는 번역과 본문 문구를 소유하며 `app.js`는 이를 import한다.
+- 4단계: 칩 점수는 실제 벤치마크가 아닌 `ILLUSTRATIVE INDEX`로 UI에 표시하며, 비교 섹션의 비실험실 기준 안내를 유지한다.
+- 5단계: 이미지 import에서 `?inline`을 제거해 Vite가 WebP를 별도 asset으로 배포하도록 했다. 초기 JS 번들이 약 586KB에서 21KB로 감소했다.
