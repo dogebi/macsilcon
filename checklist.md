@@ -25,3 +25,8 @@
 - [x] Confirmed that M1 Pro/Max were being shown the M1 base infographic.
 - [x] Copy the supplied model-specific clean images into assets and map each chip model to its matching filename.
 - [x] Run the tests and production build.
+
+## Image loading performance (2026-09-29)
+- [x] Convert clean chip PNGs to optimized WebP assets while retaining PNG sources.
+- [x] Load the first visible infographic eagerly and defer the remaining images with native lazy loading.
+- [x] Run the content checks and production build; compare generated image sizes.

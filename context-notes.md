@@ -24,3 +24,11 @@
 - Runtime map originally selected only the M1-M5 base chips, omitting Pro, Max, and Ultra variants. It now uses the full chips array and reuses each family image for its models.
 - Verified the family infographics themselves name the base chip (for example, `Apple M1`) and show base-tier specs. Reuse those only for base chips; show a neutral model/type/year graphic for Pro/Max/Ultra until matching source art exists.
 - Follow-up image review found the M4 and M5 infographics also contain incorrect specs. User supplied model-specific clean PNGs and confirmed `M1p_clean.png` is for M1 Pro. Import the supplied `_clean.png` set by filename and map each dataset model to its matching image.
+
+## 2026-09-29: Image loading performance
+- The journey renderer inserts all 18 clean PNGs at startup; each source is about 1.3-1.4 MB. This makes the browser request and decode a large image set before the user reaches those scenes.
+- Keep the original PNGs as source assets. Generate WebP derivatives with Pillow at quality 90, update the existing Vite asset glob to use only those WebPs, and use native lazy loading for all but the first image.
+- This keeps the first scene promptly available and defers offscreen downloads without adding a dependency or custom loader.
+
+- Generated 18 canonical WebP assets: 2,057,338 bytes total versus 24,836,145 bytes of PNG sources (91.7% smaller); kept PNG originals untouched.
+- `node --test test/*.test.mjs` passed (3 files), `npm run build` passed, and `git diff --check` reported no whitespace errors.
