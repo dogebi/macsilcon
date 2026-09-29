@@ -13,7 +13,7 @@ assert.deepEqual(Object.keys(translations).sort(), ['en', 'ja', 'ko', 'zh']);
 assert.equal(Object.values(translations).every(value => value.referenceIndex.startsWith('ILLUSTRATIVE INDEX')), true);
 assert.equal(Object.values(translations).every(value => ['averageIndex', 'profileNotice', 'clearProfile', 'profileCleared', 'profileClearUnavailable'].every(key => value[key])), true);
 assert.equal(Object.values(translations).every(value => value.officialSpecs), true);
-const personalizationKeys = ['personalizationOn', 'personalizationOff', 'moduleFocus', 'personalizationChanged'];
+const personalizationKeys = ['personalizationOn', 'personalizationOff', 'moduleFocus', 'moduleCompare', 'personalizationChanged', 'focusedModule', 'sectionsUpdated'];
 assert.equal(Object.values(translations).every(copy => personalizationKeys.every(key => copy[key])), true);
 assert.equal(Object.keys(variantNotes).length, 4);
 assert.ok(Object.values(variantNotes).every(note => note.includes('macrumors.com')));

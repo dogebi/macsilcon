@@ -99,3 +99,17 @@ body:before { content:""; position:fixed; inset:0; z-index:30; pointer-events:no
 .profile-controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:0 7vw 12px; color:#82998c; font:9px var(--mono); }.profile-controls p { margin:0 auto 0 0; }.profile-controls button { border:1px solid #345442; background:#07110d; color:var(--green); padding:5px 7px; font:inherit; cursor:pointer; }.profile-controls button:hover { border-color:var(--green); }
 @media(max-width:900px) { .profile-controls { display:block; }.profile-controls p { margin:0 0 10px; }.profile-controls span { display:block; margin-top:8px; } }
 .variant-note { margin:18px 0 0; max-width:860px; color:#82998c; font-size:10px; line-height:1.7; }.variant-note a,.map-source { color:var(--green); text-decoration:underline; text-underline-offset:3px; }.map-source { display:inline-block; margin-top:14px; font-size:8px; letter-spacing:.7px; }
+
+button.map-spec,button.compare-module { width:100%; appearance:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+button.map-spec { border:0; background:transparent; }
+button.map-spec { padding:7px; }
+button.map-spec:focus-visible,button.compare-module:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.personal-focus { border-color:var(--green)!important; box-shadow:0 0 14px #20ff9130,inset 0 0 12px #20ff9110; }
+.personal-compact.module strong { margin-top:7px; }
+.personal-compact.module small,.personal-compact.module i,.personal-compact.map-spec i,.personal-compact.compare-module small,.personal-compact.compare-module i { display:none; }
+.map-focus-detail { display:grid; grid-template-columns:repeat(auto-fit,minmax(82px,1fr)); gap:7px; margin-top:12px; }
+.map-focus-detail>div { display:grid; gap:4px; padding:8px; border-left:1px solid var(--green); background:#0a1710; }
+.map-focus-detail span,.map-focus-detail small { color:#8aa899; font-size:7px; }
+.map-focus-detail b { color:#effff5; font-size:12px; }
+.compare-empty { grid-column:1/-1; margin:0; padding:22px; color:#8aa899; background:#07110d; }
+@media(prefers-reduced-motion:reduce) { .personal-focus,.personal-compact,.section-rail-link { transition:none; } }

@@ -4,21 +4,24 @@ import { pageCopy, translations, variantNotes } from './translations.js';
 import { getLocalStorage, readStoredJson, readStoredValue, removeStoredValue, writeStoredValue } from './storage.js';
 import { createJevIntentState, getJevIntent, recordJevSignal, updateSelectedChips } from './jev-personalization.js';
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
+const focusedMetricIndexes = { cpu: [0, 1], gpu: [2], neural: [4] };
 const omniStorageKey = 'jev-omni-profile-v1';
 const personalizationStorageKey = 'jev-omni-personalization-enabled';
 const storage = getLocalStorage();
-let trackingEnabled = true;
 let personalizationEnabled = readStoredValue(storage, personalizationStorageKey, 'true') !== 'false';
+let trackingEnabled = personalizationEnabled;
 const defaultOmniProfile = () => ({ visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {}, moduleInterest: {} });
 const omniParams = new URLSearchParams(location.search);
 const omniSource = omniParams.get('utm_source') || omniParams.get('ref') || (document.referrer ? new URL(document.referrer).hostname : 'direct');
 const omniProfile = readStoredJson(storage, omniStorageKey, defaultOmniProfile());
 omniProfile.moduleInterest ||= {};
 let personalizationState = createJevIntentState(omniProfile.moduleInterest);
-omniProfile.visits += 1;
-omniProfile.sources[omniSource] = (omniProfile.sources[omniSource] || 0) + 1;
+if (trackingEnabled) {
+  omniProfile.visits += 1;
+  omniProfile.sources[omniSource] = (omniProfile.sources[omniSource] || 0) + 1;
+}
 const saveOmniProfile = () => trackingEnabled && writeStoredValue(storage, omniStorageKey, JSON.stringify(omniProfile));
-const omniSegment = () => getJevIntent(personalizationState) === 'architecture' ? 'analyst' : (getJevIntent(personalizationState) === 'compare' ? 'catalog' : 'explorer');
+const omniSegment = () => !personalizationEnabled ? 'explorer' : (getJevIntent(personalizationState) === 'architecture' ? 'analyst' : (getJevIntent(personalizationState) === 'compare' ? 'catalog' : 'explorer'));
 function applyOmniMode() { const segment = omniSegment(); if (trackingEnabled) document.body.dataset.omniSource = omniSource; else delete document.body.dataset.omniSource; document.body.className = document.body.className.replace(/\bomni-[\w-]+\b/g, '').trim(); document.body.classList.add(`omni-${segment}`); $('#omniMode').textContent = `OMNI / ${segment.toUpperCase()}`; }
 function trackOmni(event, value = '') { if (!trackingEnabled) return; omniProfile.clicks[event] = (omniProfile.clicks[event] || 0) + 1; if (value) omniProfile.models[value] = (omniProfile.models[value] || 0) + 1; saveOmniProfile(); applyOmniMode(); }
 function updateOmniDwell() { omniProfile.dwellSeconds = Math.round((Date.now() - omniProfile.startedAt) / 1000); saveOmniProfile(); }
@@ -50,9 +53,14 @@ function applyPersonalizedFocus() {
   document.querySelectorAll('[data-module]').forEach(node => {
     const selectedModule = node.dataset.module === focusModule;
     node.classList.toggle('personal-focus', Boolean(focusModule && selectedModule));
-    node.classList.toggle('personal-compact', Boolean(focusModule && !selectedModule && ['cpu', 'gpu', 'neural'].includes(node.dataset.module)));
+    node.classList.toggle('personal-compact', Boolean(focusModule && !selectedModule));
     if (node.matches('button[data-module]')) node.setAttribute('aria-pressed', String(Boolean(focusModule && selectedModule)));
   });
+  const detail = $('#mapFocusDetail');
+  const chip = chipByName(mapChipActive || 'M1');
+  if (detail && chip) detail.innerHTML = focusModule
+    ? (focusedMetricIndexes[focusModule] || []).map(index => `<div><span>${metricNames[index]}</span><b>${chip.metrics[index]}</b><small>ILLUSTRATIVE INDEX</small></div>`).join('')
+    : '';
 }
 function chipMarkup(chip, compact = false) { return `<div class="chip-shell ${compact ? 'compact-shell' : ''}"><div class="chip-shell-head"><b>${chip.name}</b><span>${chip.type}</span><em>${chip.year}</em></div><div class="chip-bus"></div><div class="module-grid">${chip.blocks.map(block => moduleMarkup(block, compact)).join('')}</div><div class="chip-shell-foot"><span>UNIFIED ARCHITECTURE</span><span>${chip.blocks.length} MODULES</span></div></div>`; }
 function renderJourney() { $('#journeyTrack').innerHTML = generationChips.map((chip, index) => `<article class="generation-scene">${chip.image ? `<div class="scene-image-frame"><img src="${chip.image}" alt="${chip.name} 세대 인포그래픽" loading="${index === 0 ? 'eager' : 'lazy'}" fetchpriority="${index === 0 ? 'high' : 'low'}" decoding="async"></div>` : `<div class="scene-image-frame variant-art-frame"><div class="variant-art"><span>APPLE SILICON / MODEL</span><strong>${chip.name}</strong><small>${chip.type} / ${chip.year}</small><i></i></div></div>`}${chipMarkup(chip)}</article>`).join(''); applyPersonalizedFocus(); }
@@ -75,7 +83,13 @@ function renderCompare() {
     applyPersonalizedFocus();
     return;
   }
-  $('#compareGrid').innerHTML = pair.map((chip, column) => `<article class="compare-column"><div class="compare-column-head"><span class="live-dot">●</span><div><h3>${chip.name}</h3><small>${chip.type} / ${chip.year}</small></div><b>${column === 0 ? 'TARGET A' : 'TARGET B'}</b></div><div class="compare-modules">${chip.blocks.map(([label, value, score, tone]) => { const module = moduleKeyForLabel(label); const control = ['cpu', 'gpu', 'neural'].includes(module); const tag = control ? 'button' : 'div'; return `<${tag} ${control ? `type="button" aria-label="${t('moduleFocus')}: ${t(module)}" aria-pressed="${personalizationState.focusModule === module}"` : ''} class="compare-module ${tone}" data-module="${module}"><div><span>${label}</span><strong>${value}</strong></div><small>${score} / ILLUSTRATIVE INDEX</small><i><b style="width:${Math.min(Number(score) / 4, 100)}%"></b></i></${tag}>`; }).join('')}</div></article>`).join('');
+  $('#compareGrid').innerHTML = pair.map((chip, column) => `<article class="compare-column"><div class="compare-column-head"><span class="live-dot">●</span><div><h3>${chip.name}</h3><small>${chip.type} / ${chip.year}</small></div><b>${column === 0 ? 'TARGET A' : 'TARGET B'}</b></div><div class="compare-modules">${chip.blocks.map(([label, value, score, tone]) => {
+    const module = moduleKeyForLabel(label);
+    const control = ['cpu', 'gpu', 'neural'].includes(module);
+    const tag = control ? 'button' : 'div';
+    const actionLabel = control ? `${t('moduleCompare')}: ${t(module)}` : '';
+    return `<${tag} ${control ? `type="button" aria-label="${actionLabel}" aria-pressed="${personalizationState.focusModule === module}"` : ''} class="compare-module ${tone}" data-module="${module}"><div><span>${label}</span><strong>${value}</strong></div><small>${score} / ILLUSTRATIVE INDEX</small><i><b style="width:${Math.min(Number(score) / 4, 100)}%"></b></i></${tag}>`;
+  }).join('')}</div></article>`).join('');
   applyPersonalizedFocus();
 }
 let mapChipActive = 'M1';
@@ -86,7 +100,8 @@ function renderKnowledgeMap() {
   $('#mapAverageIndex').textContent = average;
   const source = chip.sourceUrl ? `<a class="map-source" href="${chip.sourceUrl}" target="_blank" rel="noopener">${t('officialSpecs')}</a>` : '';
   const moduleKeys = ['cpu', 'gpu', 'neural', 'memory', 'media'];
-  $('#mapDetail').innerHTML = `<div class="map-detail-kicker">${t('activeSilicon')} / ${chip.year}</div><h3>${chip.name}</h3><strong>${chip.type}</strong><div class="map-spec-list">${chip.blocks.map(([label, value, score, tone], index) => { const module = moduleKeyForLabel(label); const control = ['cpu', 'gpu', 'neural'].includes(module); const tag = control ? 'button' : 'div'; return `<${tag} ${control ? `type="button" aria-label="${t('moduleFocus')}: ${t(moduleKeys[index])}" aria-pressed="${personalizationState.focusModule === module}"` : ''} class="map-spec ${tone}" data-module="${module}"><span>${t(moduleKeys[index])}</span><b>${value}</b><i><em style="width:${Math.min(Number(score) / 4, 100)}%"></em></i></${tag}>`; }).join('')}</div>${source}`;
+  const focusModule = personalizationEnabled ? personalizationState.focusModule : null;
+  $('#mapDetail').innerHTML = `<div class="map-detail-kicker">${t('activeSilicon')} / ${chip.year}</div><h3>${chip.name}</h3><strong>${chip.type}</strong><div class="map-spec-list">${chip.blocks.map(([label, value, score, tone], index) => { const module = moduleKeyForLabel(label); const control = ['cpu', 'gpu', 'neural'].includes(module); const tag = control ? 'button' : 'div'; return `<${tag} ${control ? `type="button" aria-label="${t('moduleFocus')}: ${t(moduleKeys[index])}" aria-pressed="${focusModule === module}"` : ''} class="map-spec ${tone}" data-module="${module}"><span>${t(moduleKeys[index])}</span><b>${value}</b><i><em style="width:${Math.min(Number(score) / 4, 100)}%"></em></i></${tag}>`; }).join('')}</div><div id="mapFocusDetail" class="map-focus-detail"></div>${source}`;
   $('#mapCards').innerHTML = chips.map((model, index) => { const active = model.name === chip.name; return `<button class="model-map-card ${active ? 'active' : ''}" data-map-chip="${model.name}" type="button" aria-pressed="${active}"><span class="map-card-index">${String(index + 1).padStart(2, '0')}</span><span class="map-card-label">${model.name.split(' ')[0]}</span><strong>${model.name}</strong><small>${model.type} · ${model.year}</small><i><b style="width:${Math.min(Number(model.metrics[0]) / 4, 100)}%"></b></i></button>`; }).join('');
   $('#mapWireGroup').innerHTML = chips.map((model, index) => { const column = index % 3; const row = Math.floor(index / 3); const endX = 760 + column * 145; const endY = 70 + row * 100; const active = model.name === chip.name; return `<path class="map-wire ${active ? 'active' : ''}" data-map-wire="${model.name}" d="M430 340 C540 340 ${endX - 150} ${endY} ${endX} ${endY}"></path>`; }).join('');
   document.querySelectorAll('.model-map-card').forEach(card => card.addEventListener('click', () => { trackOmni('map', card.dataset.mapChip); mapChipActive = card.dataset.mapChip; renderKnowledgeMap(); }));
@@ -95,13 +110,85 @@ function renderKnowledgeMap() {
 function recordPersonalizationSignal(signal) {
   if (!trackingEnabled || !personalizationEnabled) return;
   const previousFocus = personalizationState.focusModule;
+  const previousOrder = [...$('#top').children].filter(node => ['catalog', 'knowledgeMapSection', 'compare'].includes(node.id)).map(node => node.id).join(',');
   personalizationState = recordJevSignal(personalizationState, signal);
   omniProfile.moduleInterest = personalizationState.modulePreferences;
   saveOmniProfile();
   applyPersonalizedFocus();
   applyOmniMode();
-  if (personalizationState.focusModule !== previousFocus) $('#personalizationStatus').textContent = t('personalizationChanged');
+  queueAdaptiveLayout(getJevIntent(personalizationState));
+  const currentOrder = [...$('#top').children].filter(node => ['catalog', 'knowledgeMapSection', 'compare'].includes(node.id)).map(node => node.id).join(',');
+  const announcements = [];
+  if (personalizationState.focusModule !== previousFocus && personalizationState.focusModule) announcements.push(`${t('focusedModule')}: ${t(personalizationState.focusModule)}`);
+  if (currentOrder !== previousOrder) announcements.push(t('sectionsUpdated'));
+  const message = announcements.join('. ');
+  if (message && $('#personalizationStatus').textContent !== message) $('#personalizationStatus').textContent = message;
 }
+let queuedAdaptiveIntent = null;
+let adaptiveScrollTimer = 0;
+let adaptiveScrollActive = false;
+let keyboardNavigation = false;
+function hasKeyboardFocusInMovableSection() {
+  return keyboardNavigation && ['catalog', 'knowledgeMapSection', 'compare'].some(id => document.getElementById(id).contains(document.activeElement));
+}
+function flushAdaptiveLayout() {
+  if (queuedAdaptiveIntent === null || adaptiveScrollActive || hasKeyboardFocusInMovableSection()) return;
+  const intent = queuedAdaptiveIntent;
+  queuedAdaptiveIntent = null;
+  applyAdaptiveLayout(intent);
+}
+function queueAdaptiveLayout(intent) {
+  queuedAdaptiveIntent = intent;
+  flushAdaptiveLayout();
+}
+function applyAdaptiveLayout(intent) {
+  const sectionOrder = getJevSectionOrder(personalizationEnabled ? intent : 'explore');
+  const main = $('#top');
+  const stage = main.querySelector('.dashboard-stage');
+  const sections = new Map(['catalog', 'knowledgeMapSection', 'compare'].map(id => [id, document.getElementById(id)]));
+  const currentOrder = [...main.children].filter(node => sections.has(node.id)).map(node => node.id);
+  const changed = sectionOrder.some((id, index) => currentOrder[index] !== id);
+  const orderedIds = ['top', ...sectionOrder];
+  const currentRailOrder = [...railNav.querySelectorAll('.section-rail-link')].map(link => link.getAttribute('href').slice(1));
+  const railChanged = orderedIds.some((id, index) => currentRailOrder[index] !== id);
+  const anchors = [stage, ...sections.values()].map(node => ({ node, top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom })).filter(({ top, bottom }) => bottom > 0 && top < window.innerHeight).sort((left, right) => Math.abs(left.top) - Math.abs(right.top));
+  const anchor = anchors[0];
+  const activeElement = document.activeElement;
+  const hadSectionFocus = [...sections.values()].some(section => section.contains(activeElement));
+
+  if (changed) sectionOrder.forEach(id => main.append(sections.get(id)));
+  if (railChanged) orderedIds.forEach((id, index) => {
+    const link = railLinkById.get(id);
+    if (!link) return;
+    const number = link.querySelector('span');
+    const label = String(index + 1).padStart(2, '0');
+    if (number && number.textContent !== label) number.textContent = label;
+    railNav.append(link);
+  });
+
+  if (!changed) return;
+  if (hadSectionFocus && document.activeElement !== activeElement) activeElement.focus({ preventScroll: true });
+  if (anchor) {
+    const offset = anchor.node.getBoundingClientRect().top - anchor.top;
+    if (Math.abs(offset) > 1) window.scrollBy(0, offset);
+  }
+  const status = $('#personalizationStatus');
+  const message = t('sectionsUpdated');
+  if (status.textContent !== message) status.textContent = message;
+}
+document.addEventListener('keydown', event => {
+  if (['Tab', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) keyboardNavigation = true;
+});
+document.addEventListener('pointerdown', () => {
+  keyboardNavigation = false;
+  flushAdaptiveLayout();
+});
+document.addEventListener('focusout', () => queueMicrotask(flushAdaptiveLayout));
+window.addEventListener('scroll', () => {
+  adaptiveScrollActive = true;
+  window.clearTimeout(adaptiveScrollTimer);
+  adaptiveScrollTimer = window.setTimeout(() => { adaptiveScrollActive = false; flushAdaptiveLayout(); }, 180);
+}, { passive: true });
 $('#mapDetail').addEventListener('click', event => {
   const control = event.target.closest('button[data-module]');
   if (control) recordPersonalizationSignal({ type: 'module-focus', module: control.dataset.module });
@@ -135,28 +222,35 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 function registerWebMCP() { if (!document.modelContext?.registerTool) return; const controller = new AbortController(); window.macCompareWebMCP = { controller }; const register = async () => { await document.modelContext.registerTool({ name: 'list_mac_chips', description: 'List the Mac chip modules available in the Silicon Atlas dashboard.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => ({ chips: chips.map(chip => ({ name: chip.name, type: chip.type, year: chip.year, modules: chip.blocks.map(block => block[0]) })) }) }, { signal: controller.signal }); await document.modelContext.registerTool({ name: 'compare_mac_chips', description: 'Select two chips and return their decomposed module comparison.', inputSchema: { type: 'object', properties: { left: { type: 'string' }, right: { type: 'string' } }, required: ['left', 'right'], additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async input => { const left = chipByName(input.left); const right = chipByName(input.right); if (!left || !right || left.name === right.name) return { ok: false, error: 'Choose two different chip names from list_mac_chips.' }; selected = [left.name, right.name]; renderCatalog(); renderCompare(); renderKnowledgeMap(); return { ok: true, selected, metrics: metricNames.map((metric, index) => ({ metric, left: left.metrics[index], right: right.metrics[index] })) }; } }, { signal: controller.signal }); }; register().catch(error => { window.macCompareWebMCP.error = String(error?.message || error); }); }
-$('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; renderCatalog(); renderCompare(); renderKnowledgeMap(); });
+$('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; personalizationState.compareScore = 0; renderCatalog(); renderCompare(); renderKnowledgeMap(); queueAdaptiveLayout(getJevIntent(personalizationState)); });
 $('#personalizationToggle').addEventListener('click', () => {
   personalizationEnabled = !personalizationEnabled;
   writeStoredValue(storage, personalizationStorageKey, String(personalizationEnabled));
   trackingEnabled = personalizationEnabled;
-  if (personalizationEnabled) personalizationState = createJevIntentState(omniProfile.moduleInterest);
-  else {
+  if (!personalizationEnabled) {
     for (const timer of moduleDwellTimers.values()) window.clearTimeout(timer);
     moduleDwellTimers.clear();
   }
   applyLanguage();
   applyPersonalizedFocus();
   applyOmniMode();
+  queueAdaptiveLayout(getJevIntent(personalizationState));
   $('#personalizationStatus').textContent = t('personalizationChanged');
 });
-$('#clearProfileButton').addEventListener('click', () => { const removed = removeStoredValue(storage, omniStorageKey); trackingEnabled = false; Object.assign(omniProfile, { visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {}, moduleInterest: {} }); personalizationState = createJevIntentState(); applyPersonalizedFocus(); applyOmniMode(); $('#profileStatus').textContent = t(removed ? 'profileCleared' : 'profileClearUnavailable'); });
+$('#clearProfileButton').addEventListener('click', () => { const removed = removeStoredValue(storage, omniStorageKey); trackingEnabled = false; personalizationEnabled = false; writeStoredValue(storage, personalizationStorageKey, 'false'); Object.assign(omniProfile, { visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {}, moduleInterest: {} }); personalizationState = createJevIntentState(); applyLanguage(); applyPersonalizedFocus(); applyOmniMode(); queueAdaptiveLayout('explore'); $('#profileStatus').textContent = t(removed ? 'profileCleared' : 'profileClearUnavailable'); });
 $('#topButton').addEventListener('click', () => $('#top').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 $('#languageSelect').value = language;
 $('#languageSelect').addEventListener('change', event => { trackOmni('language', event.target.value); language = event.target.value; writeStoredValue(storage, 'silicon-atlas-language', language); applyLanguage(); });
-const railSections = ['top', 'catalog', 'knowledgeMapSection', 'compare'].map(id => document.getElementById(id));
+const railNav = document.querySelector('.section-rail');
 const railLinks = [...document.querySelectorAll('.section-rail-link')];
+const railLinkById = new Map(railLinks.map(link => [link.getAttribute('href').slice(1), link]));
+const railSectionByNode = new Map([
+  [document.querySelector('.dashboard-stage'), railLinkById.get('top')],
+  ...['catalog', 'knowledgeMapSection', 'compare'].map(id => [document.getElementById(id), railLinkById.get(id)]),
+]);
 railLinks.forEach(link => link.addEventListener('click', () => trackOmni('section', link.getAttribute('href'))));
-const railObserver = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) railLinks.forEach((link, index) => link.classList.toggle('active', railSections[index] === entry.target)); }), { rootMargin: '-35% 0px -55% 0px' });
-railSections.forEach(section => railObserver.observe(section));
+const railObserver = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) railLinks.forEach(link => link.classList.toggle('active', railSectionByNode.get(entry.target) === link)); }), { rootMargin: '-35% 0px -55% 0px' });
+railSectionByNode.forEach((link, section) => railObserver.observe(section));
+railNav.append(railLinkById.get('top'));
 renderJourney(); renderCatalog(); renderCompare(); renderKnowledgeMap(); applyLanguage(); applyOmniMode(); saveOmniProfile(); registerWebMCP();
+queueAdaptiveLayout(getJevIntent(personalizationState));
