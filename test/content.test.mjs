@@ -23,3 +23,5 @@ assert.match(html, /中文/);
 assert.match(html, /M1부터 M6까지/);
 assert.match(html, /GENERATIONS <b>06<\/b>/);
 assert.match(html, /class="variant-note"/);
+assert.match(html, /id="personalizationToggle"/);
+assert.match(html, /id="personalizationStatus" aria-live="polite"/);
