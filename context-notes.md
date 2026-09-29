@@ -58,3 +58,10 @@
 - 공식 출처: https://www.apple.com/newsroom/2026/08/apple-unveils-a-more-powerful-mac-mini-featuring-the-all-new-m6-and-m5-pro/ .
 - 1672×941 인포그래픽을 생성하고 `assets/chip-m6.webp`로 변환했다. 107,596 bytes이며 기존 `chip-*.webp` Vite glob으로 M6 카드에서 불러온다.
 - 이미지 텍스트와 배치에서 M6 공식 정보가 반영된 것을 확인했다. `npm test` 3개 파일 통과, `npm run build` 성공, 결과물에 `chip-m6-*.webp` 포함, `git diff --check` 이상 없음.
+
+## JEV-OMNI 실시간 맞춤 UI 설계
+- 현재 프로필은 visits/clicks/models/sources/dwellSeconds를 localStorage에 보관한다. `omniSegment()`는 누적 카탈로그·맵 클릭과 재방문 우선순위로 세그먼트를 정하고 `trackOmni()`가 행동 직후 클래스를 갱신한다.
+- 현재 CSS는 세그먼트에 따라 일부 섹션 테두리와 제목을 강조한다. 그러나 CPU·GPU·Neural 모듈 자체에는 독립 선택/관심 이벤트가 없다. `renderKnowledgeMap()`은 모듈 행을 생성하지만 클릭 처리하지 않는다.
+- 사용자는 CPU·GPU·Neural 관심 강조와 방문 목적에 따른 섹션 순서·상세 수준의 자동 조정을 승인했다. 구현 전 설계 문서를 검토받는 단계로 진행한다.
+- 실시간 조정 중 포커스/스크롤 점프 방지, 보수적인 신뢰도 기준, 로컬 처리·프로필 삭제/기본 화면 복귀를 필수 제약으로 둔다.
+- 설계 문서 자체 검토에서 신호 점수와 섹션 순서 임계값을 명시하고, 기존 누적 방문 수가 현재 의도를 덮어쓰지 않도록 분리했다. 이 단계는 문서만 변경하며 구현은 사용자의 문서 검토 이후 계획한다.
