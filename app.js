@@ -1,16 +1,17 @@
 // Apple Silicon 칩을 모듈 박스와 비교 패널로 렌더링하는 브라우저 코드
 import { chips } from './data.js';
 import { pageCopy, translations } from './translations.js';
-import { readStoredJson } from './storage.js';
+import { getLocalStorage, readStoredJson, readStoredValue, writeStoredValue } from './storage.js';
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
 const omniStorageKey = 'jev-omni-profile-v1';
+const storage = getLocalStorage();
 const defaultOmniProfile = () => ({ visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {} });
 const omniParams = new URLSearchParams(location.search);
 const omniSource = omniParams.get('utm_source') || omniParams.get('ref') || (document.referrer ? new URL(document.referrer).hostname : 'direct');
-const omniProfile = readStoredJson(localStorage, omniStorageKey, defaultOmniProfile());
+const omniProfile = readStoredJson(storage, omniStorageKey, defaultOmniProfile());
 omniProfile.visits += 1;
 omniProfile.sources[omniSource] = (omniProfile.sources[omniSource] || 0) + 1;
-const saveOmniProfile = () => localStorage.setItem(omniStorageKey, JSON.stringify(omniProfile));
+const saveOmniProfile = () => writeStoredValue(storage, omniStorageKey, JSON.stringify(omniProfile));
 const omniSegment = () => omniProfile.visits > 1 ? 'returning' : (omniProfile.clicks.map >= 2 ? 'analyst' : (omniProfile.clicks.catalog >= 2 ? 'catalog' : 'explorer'));
 function applyOmniMode() { const segment = omniSegment(); document.body.dataset.omniSource = omniSource; document.body.className = document.body.className.replace(/\bomni-[\w-]+\b/g, '').trim(); document.body.classList.add(`omni-${segment}`); $('#omniMode').textContent = `OMNI / ${segment.toUpperCase()}`; }
 function trackOmni(event, value = '') { omniProfile.clicks[event] = (omniProfile.clicks[event] || 0) + 1; if (value) omniProfile.models[value] = (omniProfile.models[value] || 0) + 1; saveOmniProfile(); applyOmniMode(); }
@@ -19,7 +20,7 @@ window.addEventListener('beforeunload', updateOmniDwell);
 setInterval(updateOmniDwell, 15000);
 const supportedLanguages = Object.keys(translations);
 const browserLanguage = [...(navigator.languages || []), navigator.language].find(value => supportedLanguages.includes(value?.split('-')[0]));
-let language = localStorage.getItem('silicon-atlas-language') || browserLanguage?.split('-')[0] || 'en';
+let language = readStoredValue(storage, 'silicon-atlas-language', '') || browserLanguage?.split('-')[0] || 'en';
 const t = key => pageCopy[language]?.[key] || translations[language][key] || pageCopy.en?.[key] || translations.en[key] || key;
 const localizedNodes = { '.stage-copy h1': 'stageTitle', '.stage-copy p': 'stageCopy', '.stage-legend span:nth-child(1)': 'activeModule', '.stage-legend span:nth-child(2)': 'memoryMedia', '.stage-legend span:nth-child(3)': 'computePath', '#catalogTitle': 'catalogTitle', '#catalog .section-heading p': 'catalogCopy', '#knowledgeMapTitle': 'mapTitle', '#knowledgeMapSection .knowledge-map-head p': 'mapCopy', '#compare .compare-heading p': 'compareCopy', '.compare-footnote': 'compareFootnote', '#resetButton': 'resetView', '.map-orb small': 'averageIndex', '.top-button': 'top', '.hud span:nth-child(2)': 'process', '.hud span:nth-child(3)': 'generations', '.hud span:nth-child(4)': 'modules', '.hud span:nth-child(5)': 'status', '.footer span:nth-child(1)': 'footerLeft', '.footer span:nth-child(2)': 'footerRight' };
 Object.entries(localizedNodes).forEach(([selector, key]) => { const node = document.querySelector(selector); if (node) { node.dataset.i18n = key; if (key === 'stageTitle' || key === 'catalogTitle' || key === 'mapTitle') node.dataset.i18nHtml = 'true'; } });
@@ -62,7 +63,7 @@ function registerWebMCP() { if (!document.modelContext?.registerTool) return; co
 $('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; renderCatalog(); renderCompare(); renderKnowledgeMap(); });
 $('#topButton').addEventListener('click', () => $('#top').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 $('#languageSelect').value = language;
-$('#languageSelect').addEventListener('change', event => { trackOmni('language', event.target.value); language = event.target.value; localStorage.setItem('silicon-atlas-language', language); applyLanguage(); });
+$('#languageSelect').addEventListener('change', event => { trackOmni('language', event.target.value); language = event.target.value; writeStoredValue(storage, 'silicon-atlas-language', language); applyLanguage(); });
 const railSections = ['top', 'catalog', 'knowledgeMapSection', 'compare'].map(id => document.getElementById(id));
 const railLinks = [...document.querySelectorAll('.section-rail-link')];
 railLinks.forEach(link => link.addEventListener('click', () => trackOmni('section', link.getAttribute('href'))));

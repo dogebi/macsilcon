@@ -39,3 +39,4 @@
 - 앱은 localStorage를 프로필 기록과 언어 선호에 사용한다. 저장소 차단은 기능을 막지 않도록 처리한다.
 - 작업 전 상태: `master`가 `origin/master`보다 한 커밋 앞서며, `assets/M1p_preview.svg`와 `assets/test.svg`는 미추적 사용자 파일이므로 포함하거나 수정하지 않는다.
 - 1단계 완료: orb의 `CONFIDENCE` 퍼센트를 다섯 모듈 예시 점수의 평균값으로 바꾸고 4개 언어의 `AVERAGE INDEX` 라벨을 연결했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
+- 2단계 완료: localStorage 객체 접근과 get/set을 안전하게 감싸고, 저장이 실패해도 세션 내 화면 동작은 유지하도록 했다. 차단된 저장소 동작을 회귀 검사로 추가했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
