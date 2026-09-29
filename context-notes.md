@@ -71,3 +71,4 @@
 - Task 2에서 로컬 맞춤 설정 토글, CPU/GPU/Neural 지도·비교 조작, 8초 마우스·펜 체류 신호, 한국어·영어·일본어·중국어 라벨을 연결했다. 기존 프로필의 `moduleInterest` 누락은 빈 선호도로 보정하고, 이전 방문 횟수만으로 Returning 모드를 선택하지 않는다. `npm test`(11개)와 `npm run build`가 통과했다.
 - Task 3에서 CPU/GPU/Neural 포커스에 따라 각 화면의 세부도를 조정하고, 지식 지도·비교·카탈로그 및 탐색 레일을 의도별 순서로 재배치한다. 스크롤 중과 키보드 포커스가 옮길 섹션 안에 있을 때 재배치를 미루며, 같은 순서에서는 DOM 노드를 이동하지 않고 보이는 섹션의 화면 위치와 포커스를 보존한다. 비활성화와 프로필 삭제는 기본 순서·요약 상태로 복귀한다. `npm test`(11개), `npm run build`, `git diff --check`가 통과했다.
 - 실제 브라우저 상호작용 검증은 수행하지 못했다. 현재 환경에 Chrome/Edge/Firefox 실행 파일과 Playwright/Puppeteer/jsdom이 없어 화면 조작을 재현할 수 없다.
+- 최종 검증: `npm test` 11개 통과, `npm run build` 성공, `git diff --check` 이상 없음. 구현 커밋은 `d8ca296`, `2c681fa`, `758cd41`이며 모두 `origin/master`에 푸시했다. `assets/M1p_preview.svg`, `assets/test.svg`는 계속 미추적 상태로 보존했다.
