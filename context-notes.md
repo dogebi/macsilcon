@@ -42,3 +42,12 @@
 - 2단계 완료: localStorage 객체 접근과 get/set을 안전하게 감싸고, 저장이 실패해도 세션 내 화면 동작은 유지하도록 했다. 차단된 저장소 동작을 회귀 검사로 추가했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
 - 3단계 완료: 4개 언어로 로컬 방문·체류·클릭·유입 정보와 언어 설정 저장을 알리고, 프로필 삭제 버튼을 추가했다. 삭제 뒤에는 현재 페이지 수집을 멈추고 저장 실패 시에도 상태 문구로 알린다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
 - 4단계 완료: `npm test`를 `node --test`로 연결하고 4개 언어의 새 프로필 안내 문구를 확인하는 회귀 검사를 추가했다. `npm test` 3개 테스트 통과, `npm run build` 성공, `git diff --check` 통과.
+
+## M6 카탈로그 업데이트
+- Apple Korea 기술 사양에서 M6의 12코어 CPU(슈퍼 2/성능 4/효율 6), 12코어 GPU, 듀얼 16코어 Neural Engine, 153/170GB/s 메모리 대역폭, AV1 디코딩 및 H.264/HEVC/ProRes/ProRes RAW 미디어 지원을 확인했다.
+- M6 기본형은 2026년형 Mac mini에 출시됐다. M6 Pro/Max/Ultra 공식 제품이나 사양은 확인되지 않았다. 2026-08-28 MacRumors는 Bloomberg 보도를 근거로 M6 Pro/Max 생략 가능성을 전하지만, 확인되지 않은 로드맵 보도이므로 실제 모델 데이터가 아닌 참고 주석으로만 표시한다.
+- M6의 코어 수와 대역폭 등은 공식 사양으로 표시하고, 기존 앱 지수는 실험실 벤치마크가 아닌 시각화용 예시값임을 그대로 유지한다.
+- 사전 확인 상태: `master`와 `origin/master` 동기화. 미추적 `assets/M1p_preview.svg`, `assets/test.svg`는 사용자 파일로 유지한다.
+- M6용 `metrics` 및 막대 점수는 기존 UI 패턴을 유지하기 위한 자체 예시값이다. Apple이 발표한 12코어·170GB/s 등의 사양과 혼동하지 않도록 앱의 `ILLUSTRATIVE INDEX` 고지를 유지했고, M6 상세 카드에서 Apple 공식 지원 사양으로 연결한다.
+- 비교 맵은 19개 모델로 갱신하고 세대 수는 M1~M6의 6개로 표시한다. Pro/Max/Ultra 추정값은 모델 데이터에 만들지 않는다.
+- 검증 완료: `npm test` 3개 통과, `npm run build` 성공, `git diff --check` 통과. 미추적 SVG 두 파일은 이번 변경에 포함하지 않는다.

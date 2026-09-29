@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="M1부터 M5까지 Apple Silicon 칩의 구성 요소와 비교 지표를 보여주는 대시보드입니다.">
+  <meta name="description" content="M1부터 M6까지 Apple Silicon 칩의 구성 요소와 비교 지표를 보여주는 대시보드입니다.">
   <title>Silicon Atlas / Chip Runtime Dashboard</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -19,7 +19,7 @@
     <header class="hud">
       <a class="hud-brand" href="#top"><span class="live-dot">●</span> SILICON ATLAS</a>
       <span>PROCESS <b>chip_runtime</b></span>
-      <span>GENERATIONS <b>05</b></span>
+      <span>GENERATIONS <b>06</b></span>
       <span>MODULES <b>05 / CHIP</b></span>
       <span>STATUS <b class="ok">ONLINE</b></span>
       <span class="omni-mode" id="omniMode">OMNI / EXPLORER</span>
@@ -38,6 +38,7 @@
       <section class="catalog section-pad" id="catalog" aria-labelledby="catalogTitle">
         <div class="section-bar"><span data-i18n="chipRegistry">CHIP REGISTRY</span><span data-i18n="selectTwo">SELECT TWO TARGETS TO INSPECT</span></div>
         <div class="section-heading"><h2 id="catalogTitle">The complete<br><em>silicon lineup.</em></h2><p>각 카드는 하나의 칩을 다섯 개의 핵심 모듈로 분해한 구조도입니다. 카드를 선택하면 비교 패널이 갱신됩니다.</p></div>
+        <p class="variant-note" data-i18n="variantNote">M6 Pro, Max, and Ultra specifications have not been announced. Reports about skipping M6 Pro and Max are unconfirmed.</p>
         <div class="chip-grid" id="chipGrid"></div>
       </section>
 

@@ -20,3 +20,6 @@ assert.ok(['M1 Pro', 'M1 Max', 'M2 Pro', 'M2 Max'].every(name => chips.some(chip
 assert.match(html, /한국어/);
 assert.match(html, /日本語/);
 assert.match(html, /中文/);
+assert.match(html, /M1부터 M6까지/);
+assert.match(html, /GENERATIONS <b>06<\/b>/);
+assert.match(html, /class="variant-note"/);
