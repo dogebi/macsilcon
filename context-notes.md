@@ -51,3 +51,10 @@
 - M6용 `metrics` 및 막대 점수는 기존 UI 패턴을 유지하기 위한 자체 예시값이다. Apple이 발표한 12코어·170GB/s 등의 사양과 혼동하지 않도록 앱의 `ILLUSTRATIVE INDEX` 고지를 유지했고, M6 상세 카드에서 Apple 공식 지원 사양으로 연결한다.
 - 비교 맵은 19개 모델로 갱신하고 세대 수는 M1~M6의 6개로 표시한다. Pro/Max/Ultra 추정값은 모델 데이터에 만들지 않는다.
 - 검증 완료: `npm test` 3개 통과, `npm run build` 성공, `git diff --check` 통과. 미추적 SVG 두 파일은 이번 변경에 포함하지 않는다.
+
+## 2026-09-29 M6 인포그래픽
+- M1~M5 참조물은 밝은 회색 라운드 카드, 중앙 칩, 청록-검정-파랑 그라데이션 수치, 좌측 메모리·Neural Engine, 우측 대역폭·CPU·GPU, 하단 공정·출시 제품 배치다.
+- M6 원본 칩 이미지를 중앙 시각 기준으로 사용한다. Apple 공식 보도자료에 나온 M6 2nm, 12코어 CPU/GPU, 듀얼 16코어 Neural Engine, 최대 32GB 메모리, 최대 170GB/s만 그래픽에 넣고 미공개 트랜지스터 수는 만들지 않는다.
+- 공식 출처: https://www.apple.com/newsroom/2026/08/apple-unveils-a-more-powerful-mac-mini-featuring-the-all-new-m6-and-m5-pro/ .
+- 1672×941 인포그래픽을 생성하고 `assets/chip-m6.webp`로 변환했다. 107,596 bytes이며 기존 `chip-*.webp` Vite glob으로 M6 카드에서 불러온다.
+- 이미지 텍스트와 배치에서 M6 공식 정보가 반영된 것을 확인했다. `npm test` 3개 파일 통과, `npm run build` 성공, 결과물에 `chip-m6-*.webp` 포함, `git diff --check` 이상 없음.
