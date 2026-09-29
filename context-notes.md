@@ -32,3 +32,10 @@
 
 - Generated 18 canonical WebP assets: 2,057,338 bytes total versus 24,836,145 bytes of PNG sources (91.7% smaller); kept PNG originals untouched.
 - `node --test test/*.test.mjs` passed (3 files), `npm run build` passed, and `git diff --check` reported no whitespace errors.
+
+## 2026-09-29 개선 작업
+- `index.html`과 `app.js`는 UTF-8로 정상 저장되어 있고 기존 콘텐츠 테스트가 일본어·중국어·한국어 문자열을 확인한다. PowerShell 기본 출력에서만 깨져 보였으므로 관련 소스는 수정하지 않는다.
+- 지표는 `data.js`의 예시 점수 평균으로 표시하고, `CONFIDENCE`처럼 통계적 확신으로 오해될 이름은 제거한다.
+- 앱은 localStorage를 프로필 기록과 언어 선호에 사용한다. 저장소 차단은 기능을 막지 않도록 처리한다.
+- 작업 전 상태: `master`가 `origin/master`보다 한 커밋 앞서며, `assets/M1p_preview.svg`와 `assets/test.svg`는 미추적 사용자 파일이므로 포함하거나 수정하지 않는다.
+- 1단계 완료: orb의 `CONFIDENCE` 퍼센트를 다섯 모듈 예시 점수의 평균값으로 바꾸고 4개 언어의 `AVERAGE INDEX` 라벨을 연결했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.

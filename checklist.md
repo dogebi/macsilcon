@@ -1,4 +1,4 @@
-# 작업 체크리스트
+﻿# 작업 체크리스트
 
 - [x] 맵에 5개 모듈 카드를 모두 표시한다.
 - [x] 카드 클릭 시 선택 모듈의 상세 패널을 갱신한다.
@@ -30,3 +30,12 @@
 - [x] Convert clean chip PNGs to optimized WebP assets while retaining PNG sources.
 - [x] Load the first visible infographic eagerly and defer the remaining images with native lazy loading.
 - [x] Run the content checks and production build; compare generated image sizes.
+
+## 2026-09-29 개선 작업
+- [x] PowerShell 출력과 UTF-8 파일을 구분해 인코딩 손상 여부 확인.
+- [x] CONFIDENCE 표기를 산정 가능한 평균 예시 지수로 수정.
+- [ ] localStorage 접근·저장 실패 시 앱 기능 유지.
+- [ ] 로컬 이용 기록 안내 및 삭제 기능 제공.
+- [ ] `npm test` 스크립트 추가 후 테스트와 빌드 검증.
+- [ ] 순서대로 변경을 커밋하고 원격에 푸시.
+
