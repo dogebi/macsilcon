@@ -7,4 +7,5 @@ assert.equal(chips.length, 18);
 assert.equal(chips[0].name, 'M1');
 assert.deepEqual(Object.keys(translations).sort(), ['en', 'ja', 'ko', 'zh']);
 assert.equal(Object.values(translations).every(value => value.referenceIndex.startsWith('ILLUSTRATIVE INDEX')), true);
+assert.equal(Object.values(translations).every(value => ['averageIndex', 'profileNotice', 'clearProfile', 'profileCleared', 'profileClearUnavailable'].every(key => value[key])), true);
 assert.equal(pageCopy.ko.stageTitle.includes('칩'), true);

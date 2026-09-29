@@ -41,3 +41,4 @@
 - 1단계 완료: orb의 `CONFIDENCE` 퍼센트를 다섯 모듈 예시 점수의 평균값으로 바꾸고 4개 언어의 `AVERAGE INDEX` 라벨을 연결했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
 - 2단계 완료: localStorage 객체 접근과 get/set을 안전하게 감싸고, 저장이 실패해도 세션 내 화면 동작은 유지하도록 했다. 차단된 저장소 동작을 회귀 검사로 추가했다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
 - 3단계 완료: 4개 언어로 로컬 방문·체류·클릭·유입 정보와 언어 설정 저장을 알리고, 프로필 삭제 버튼을 추가했다. 삭제 뒤에는 현재 페이지 수집을 멈추고 저장 실패 시에도 상태 문구로 알린다. `node --test test/*.test.mjs`, `npm run build`, `git diff --check` 통과.
+- 4단계 완료: `npm test`를 `node --test`로 연결하고 4개 언어의 새 프로필 안내 문구를 확인하는 회귀 검사를 추가했다. `npm test` 3개 테스트 통과, `npm run build` 성공, `git diff --check` 통과.
