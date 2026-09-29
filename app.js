@@ -1,20 +1,21 @@
 // Apple Silicon 칩을 모듈 박스와 비교 패널로 렌더링하는 브라우저 코드
 import { chips } from './data.js';
 import { pageCopy, translations } from './translations.js';
-import { getLocalStorage, readStoredJson, readStoredValue, writeStoredValue } from './storage.js';
+import { getLocalStorage, readStoredJson, readStoredValue, removeStoredValue, writeStoredValue } from './storage.js';
 const metricNames = ['CPU SINGLE', 'CPU MULTI', 'GPU GRAPHICS', 'MEMORY BANDWIDTH', 'AI COMPUTE'];
 const omniStorageKey = 'jev-omni-profile-v1';
 const storage = getLocalStorage();
+let trackingEnabled = true;
 const defaultOmniProfile = () => ({ visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {} });
 const omniParams = new URLSearchParams(location.search);
 const omniSource = omniParams.get('utm_source') || omniParams.get('ref') || (document.referrer ? new URL(document.referrer).hostname : 'direct');
 const omniProfile = readStoredJson(storage, omniStorageKey, defaultOmniProfile());
 omniProfile.visits += 1;
 omniProfile.sources[omniSource] = (omniProfile.sources[omniSource] || 0) + 1;
-const saveOmniProfile = () => writeStoredValue(storage, omniStorageKey, JSON.stringify(omniProfile));
+const saveOmniProfile = () => trackingEnabled && writeStoredValue(storage, omniStorageKey, JSON.stringify(omniProfile));
 const omniSegment = () => omniProfile.visits > 1 ? 'returning' : (omniProfile.clicks.map >= 2 ? 'analyst' : (omniProfile.clicks.catalog >= 2 ? 'catalog' : 'explorer'));
-function applyOmniMode() { const segment = omniSegment(); document.body.dataset.omniSource = omniSource; document.body.className = document.body.className.replace(/\bomni-[\w-]+\b/g, '').trim(); document.body.classList.add(`omni-${segment}`); $('#omniMode').textContent = `OMNI / ${segment.toUpperCase()}`; }
-function trackOmni(event, value = '') { omniProfile.clicks[event] = (omniProfile.clicks[event] || 0) + 1; if (value) omniProfile.models[value] = (omniProfile.models[value] || 0) + 1; saveOmniProfile(); applyOmniMode(); }
+function applyOmniMode() { const segment = omniSegment(); if (trackingEnabled) document.body.dataset.omniSource = omniSource; else delete document.body.dataset.omniSource; document.body.className = document.body.className.replace(/\bomni-[\w-]+\b/g, '').trim(); document.body.classList.add(`omni-${segment}`); $('#omniMode').textContent = `OMNI / ${segment.toUpperCase()}`; }
+function trackOmni(event, value = '') { if (!trackingEnabled) return; omniProfile.clicks[event] = (omniProfile.clicks[event] || 0) + 1; if (value) omniProfile.models[value] = (omniProfile.models[value] || 0) + 1; saveOmniProfile(); applyOmniMode(); }
 function updateOmniDwell() { omniProfile.dwellSeconds = Math.round((Date.now() - omniProfile.startedAt) / 1000); saveOmniProfile(); }
 window.addEventListener('beforeunload', updateOmniDwell);
 setInterval(updateOmniDwell, 15000);
@@ -61,6 +62,7 @@ function renderKnowledgeMap() {
 }
 function registerWebMCP() { if (!document.modelContext?.registerTool) return; const controller = new AbortController(); window.macCompareWebMCP = { controller }; const register = async () => { await document.modelContext.registerTool({ name: 'list_mac_chips', description: 'List the Mac chip modules available in the Silicon Atlas dashboard.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async () => ({ chips: chips.map(chip => ({ name: chip.name, type: chip.type, year: chip.year, modules: chip.blocks.map(block => block[0]) })) }) }, { signal: controller.signal }); await document.modelContext.registerTool({ name: 'compare_mac_chips', description: 'Select two chips and return their decomposed module comparison.', inputSchema: { type: 'object', properties: { left: { type: 'string' }, right: { type: 'string' } }, required: ['left', 'right'], additionalProperties: false }, annotations: { readOnlyHint: true }, execute: async input => { const left = chipByName(input.left); const right = chipByName(input.right); if (!left || !right || left.name === right.name) return { ok: false, error: 'Choose two different chip names from list_mac_chips.' }; selected = [left.name, right.name]; renderCatalog(); renderCompare(); renderKnowledgeMap(); return { ok: true, selected, metrics: metricNames.map((metric, index) => ({ metric, left: left.metrics[index], right: right.metrics[index] })) }; } }, { signal: controller.signal }); }; register().catch(error => { window.macCompareWebMCP.error = String(error?.message || error); }); }
 $('#resetButton').addEventListener('click', () => { selected = ['M1', 'M2']; renderCatalog(); renderCompare(); renderKnowledgeMap(); });
+$('#clearProfileButton').addEventListener('click', () => { const removed = removeStoredValue(storage, omniStorageKey); trackingEnabled = false; Object.assign(omniProfile, { visits: 0, startedAt: Date.now(), dwellSeconds: 0, clicks: {}, models: {}, sources: {} }); applyOmniMode(); $('#profileStatus').textContent = t(removed ? 'profileCleared' : 'profileClearUnavailable'); });
 $('#topButton').addEventListener('click', () => $('#top').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 $('#languageSelect').value = language;
 $('#languageSelect').addEventListener('change', event => { trackOmni('language', event.target.value); language = event.target.value; writeStoredValue(storage, 'silicon-atlas-language', language); applyLanguage(); });
