@@ -72,3 +72,10 @@
 - Task 3에서 CPU/GPU/Neural 포커스에 따라 각 화면의 세부도를 조정하고, 지식 지도·비교·카탈로그 및 탐색 레일을 의도별 순서로 재배치한다. 스크롤 중과 키보드 포커스가 옮길 섹션 안에 있을 때 재배치를 미루며, 같은 순서에서는 DOM 노드를 이동하지 않고 보이는 섹션의 화면 위치와 포커스를 보존한다. 비활성화와 프로필 삭제는 기본 순서·요약 상태로 복귀한다. `npm test`(11개), `npm run build`, `git diff --check`가 통과했다.
 - 실제 브라우저 상호작용 검증은 수행하지 못했다. 현재 환경에 Chrome/Edge/Firefox 실행 파일과 Playwright/Puppeteer/jsdom이 없어 화면 조작을 재현할 수 없다.
 - 최종 검증: `npm test` 11개 통과, `npm run build` 성공, `git diff --check` 이상 없음. 구현 커밋은 `d8ca296`, `2c681fa`, `758cd41`이며 모두 `origin/master`에 푸시했다. `assets/M1p_preview.svg`, `assets/test.svg`는 계속 미추적 상태로 보존했다.
+
+
+## 2026-09-30 WebMCP 칩 조회
+- 저장소에 document.modelContext.registerTool() 기반 등록이 이미 있지만 브라우저 API가 없는 경우 조용히 빠지고, 등록 API가 있는지와 실제 등록 성공 여부를 확인할 안내가 부족하다.
+- WebMCP는 secure context 및 브라우저/agent 지원에 의존하므로 사이트 코드만으로 ChatGPT 일반 웹 fetch에 브라우저 도구를 연결할 수 없다.
+- WebMCP 비교 결과는 illustrative index와 데이터셋의 대역폭 표기를 구분하고, 조회 도구 호출은 UI 선택 상태를 변경하지 않게 한다.
+- `createMacChipTools()`를 분리해 모의 ModelContext로 실제 등록 목록, M3 대역폭, illustrative index를 회귀 검사한다. `npm test` 12개 통과, `npm run build` 성공, `git diff --check` 통과. Chrome agent 실호출은 현재 런타임에서 미검증이며 `docs/webmcp.md`에 수동 확인 절차를 기록했다.
